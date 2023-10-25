@@ -23,20 +23,23 @@ behavior GraphStats{
             standardError<-println("[error] can't open file");
 
         }
-
+        int actor;
+        String[] NodeList;
+        String[] ColorList;
+        String[] EdgeList;
         for (int i=0;i<LinesInFile.size();i++)
         {
             if(i%4==0)
             {
                 String s = (String) LinesInFile.get(i);
-                int actor = Integer.parseInt((String) s.split(" ")[1]);
+                actor = Integer.parseInt((String) s.split(" ")[1]);
                 standardOutput<-print("actor number: " );
                 standardOutput<-println(actor==i);
             }
             if(i%4==1)
             {
                 String Line = (String) LinesInFile.get(i);
-                String[] NodeList = new String[Line.length()];
+                NodeList = new String[Line.length()];
                 int curr = 0;
                 int start_index = 0;
                 for(int j=0; j<Line.length();j++)
@@ -54,7 +57,7 @@ behavior GraphStats{
             if(i%4==2)
             {
                 String Line = (String) LinesInFile.get(i);
-                String[] ColorList = new String[Line.length()];
+                ColorList = new String[Line.length()];
                 int curr = 0;
                 int start_index = 0;
                 for(int j=0; j<Line.length();j++)
@@ -72,7 +75,7 @@ behavior GraphStats{
             if(i%4==3)
             {
                 String Line = (String) LinesInFile.get(i);
-                String[] EdgesList = new String[Line.length()];
+                EdgesList = new String[Line.length()];
                 int curr = 0;
                 int start_index = 0;
                 for(int j=0; j<Line.length();j++)
@@ -85,6 +88,8 @@ behavior GraphStats{
                     }
                 }
                 EdgeList[curr] = Line.substring(start_index);
+
+                new Partition(actor, NodeList, ColorList, EdgeList);
             }
             standardOutput<-println(LinesInFile.get(i));
         }
