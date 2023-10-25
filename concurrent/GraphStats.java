@@ -32,6 +32,7 @@ import salsa.resources.ActorService;
 // End SALSA compiler generated import delcarations.
 
 import java.io.*;
+import java.util.*;
 
 public class GraphStats extends UniversalActor  {
 	public static void main(String args[]) {
@@ -290,6 +291,60 @@ public class GraphStats extends UniversalActor  {
 			}
 
 			for (int i = 0; i<LinesInFile.size(); i++){
+				if (i%4==0) {{
+					String s = (String)LinesInFile.get(i);
+					int actor = Integer.parseInt((String)s.split(" ")[1]);
+					{
+						// standardOutput<-print("actor number: ")
+						{
+							Object _arguments[] = { "actor number: " };
+							Message message = new Message( self, standardOutput, "print", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+					{
+						// standardOutput<-println(actor==i)
+						{
+							Object _arguments[] = { actor==i };
+							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}				if (i%4==1) {{
+					Map nodes = new HashMap();
+					String Line = (String)LinesInFile.get(i);
+					String[] NodeList = new String[Line.length()];
+					int curr = 0;
+					int start_index = 0;
+					for (int j = 0; j<Line.length(); j++){
+						if (Line.charAt(j)==',') {{
+							NodeList[curr] = Line.substring(start_index, j);
+							start_index = j+1;
+							curr++;
+						}
+}					}
+					NodeList[curr] = Line.substring(start_index);
+					for (int j = 0; j<=curr; j++){
+						nodes.put(Integer.parseInt(NodeList[j]), new Vector());
+						{
+							// standardOutput<-println(NodeList[j])
+							{
+								Object _arguments[] = { NodeList[j] };
+								Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+								__messages.add( message );
+							}
+						}
+					}
+				}
+}				{
+					// standardOutput<-println(LinesInFile.get(i))
+					{
+						Object _arguments[] = { LinesInFile.get(i) };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
 			}
 		}
 	}

@@ -1,0 +1,93 @@
+module concurrent;
+import java.io.*;
+import java.util.*;
+behavior GraphStats{
+    String inputFile = "input.txt";
+
+    String outputFileA;
+    String outputFileB;
+
+    void act(String[] args)
+    {
+        Vector LinesInFile = new Vector();
+        String line;
+        try {
+            BufferedReader in  = new BufferedReader(new FileReader(inputFile));
+            while((line = in.readLine())!=null)
+            {
+                LinesInFile.add(line);
+            }
+            in.close();
+        } catch(IOException ioe)
+        {
+            standardError<-println("[error] can't open file");
+
+        }
+
+        for (int i=0;i<LinesInFile.size();i++)
+        {
+            if(i%4==0)
+            {
+                String s = (String) LinesInFile.get(i);
+                int actor = Integer.parseInt((String) s.split(" ")[1]);
+                standardOutput<-print("actor number: " );
+                standardOutput<-println(actor==i);
+            }
+            if(i%4==1)
+            {
+                String Line = (String) LinesInFile.get(i);
+                String[] NodeList = new String[Line.length()];
+                int curr = 0;
+                int start_index = 0;
+                for(int j=0; j<Line.length();j++)
+                {
+                    if(Line.charAt(j) == ',') 
+                    {
+                        NodeList[curr] = Line.substring(start_index, j);
+                        start_index= j+1;
+                        curr++;
+                    }
+                }
+                NodeList[curr] = Line.substring(start_index);
+
+            }
+            if(i%4==2)
+            {
+                String Line = (String) LinesInFile.get(i);
+                String[] ColorList = new String[Line.length()];
+                int curr = 0;
+                int start_index = 0;
+                for(int j=0; j<Line.length();j++)
+                {
+                    if(Line.charAt(j) == ',') 
+                    {
+                        ColorList[curr] = Line.substring(start_index, j);
+                        start_index= j+1;
+                        curr++;
+                    }
+                }
+                ColorList[curr] = Line.substring(start_index);
+            }
+
+            if(i%4==3)
+            {
+                String Line = (String) LinesInFile.get(i);
+                String[] EdgesList = new String[Line.length()];
+                int curr = 0;
+                int start_index = 0;
+                for(int j=0; j<Line.length();j++)
+                {
+                    if(Line.charAt(j) == ' ') 
+                    {
+                        EdgeList[curr] = Line.substring(start_index, j);
+                        start_index= j+1;
+                        curr++;
+                    }
+                }
+                EdgeList[curr] = Line.substring(start_index);
+            }
+            standardOutput<-println(LinesInFile.get(i));
+        }
+
+    }
+}
