@@ -1,0 +1,61 @@
+
+
+behavior GraphStats {
+  def main(args: Array[String]): Unit = {
+    val system = ActorSystem("GraphStatsSystem")
+    val graphStatsActor = system.actorOf(GraphStatsActor.props, "graphStatsActor")
+
+    // Input data for partitions
+    val input = """
+      partition 0
+      0,1,2,3
+      blue,green,blue,red
+      0,1 0,2 0,3 1,2 1,3 2,3 0,9 1,4
+      partition 1
+      4,5,6,7
+      green,red,green,green
+      4,5 4,6 4,7 5,6 5,7 6,7 4,1 5,8
+      partition 2
+      8,9,10,11
+      red,blue,blue,red
+      8,9 8,10, 8,11 9,10 9,11 10,11 8,5 9,0
+    """.stripMargin
+
+    graphStatsActor ! ParseInput(input)
+
+    // Shutdown the actor system when processing is done
+    system.terminate()
+  }
+}
+
+case class ParseInput(input: String)
+
+behavior GraphStatsActor extends Actor {
+  def receive: Receive = {
+    case ParseInput(input) =>
+      val partitions = parseInput(input)
+      val partitionBehavior = PartitionBehavior(partitions)
+      // Implement your behavior here, e.g., send the partitionBehavior to partition actors.
+      // You can create partition actors and use the behavior to process partitions.
+    case _ => println("Invalid message")
+  }
+
+  private def parseInput(input: String): Seq[Partition] = {
+    val lines = input.split("\n").map(_.trim).filter(_.nonEmpty)
+    val partitionData = lines.grouped(4).toSeq
+
+    partitionData.map {
+      case Seq(partitionLine, nodesLine, colorsLine, edgesLine) =>
+        val partitionId = partitionLine.split(" ").last.toInt
+        val nodes = nodesLine.split(",").map(_.toInt).toSet
+        val colors = colorsLine.split(",").map(Color.withName)
+        val edges = edgesLine.split(" ").map { edgeStr =>
+          val Array(node1, node2) = edgeStr.split(",").map(_.toInt)
+          Edge(node1, node2)
+        }.toSet
+
+        val colorMap = nodes.zip(colors).toMap
+        new Partition(partitionId, nodes, edges, colorMap)
+    }
+  }
+}

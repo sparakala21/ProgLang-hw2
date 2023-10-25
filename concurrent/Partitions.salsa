@@ -1,0 +1,33 @@
+module concurrent;
+import java.io.*;
+import java.util.*;
+
+behavior Partitions{
+    // vars
+    Integer ActorName;
+    HashMap nodes;
+    Vector colors;
+
+    void main(Integer AN, HashMap node, Vector color){
+        ActorName = AN;
+        nodes = node;
+        colors = color;
+
+    }
+
+    computeColorCountDegree(HashMap node, Vector color, Vector all_colors){
+        Iterator<HashMap> iterator = HashMap.iterator();
+        while (iterator.hasNext()) {
+            HashMap entry = iterator.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
+            System.out.println("Key=" + key + ", Value=" + value);
+        }
+        for(int all_colors_i = 0; all_colors_i < all_colors.length(); all_colors_i++){
+            for(int color_j = 0; color_j < color.length(); color_j++){
+                if
+            }
+        }
+        
+    }
+}
