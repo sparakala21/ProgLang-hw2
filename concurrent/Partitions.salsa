@@ -4,30 +4,29 @@ import java.util.*;
 
 behavior Partitions{
     // vars
-    Integer ActorName;
-    HashMap nodes;
-    Vector colors;
+    private int ActorName;
+    private HashMap<Integer, Node> nodes = new HashMap<>();
+    private Vector<String> colors = new Vector<>();
 
-    void main(Integer AN, HashMap node, Vector color){
-        ActorName = AN;
-        nodes = node;
-        colors = color;
+    Partition(int actor, String[] NodeList, String[] ColorList, String[] EdgeList){
+        this.ActorName = actor;
 
+        for(int i = 0; i < NodeList.length; i++) {
+            Node node = new Node(Integer.parseInt(NodeList[i]), ColorList[i]);
+            nodes.put(node.getId(), node);
+        }
+
+        for(String edge : EdgeList) {
+            String[] ends = edge.split(",");
+            Node start = nodes.get(Integer.parseInt(ends[0]));
+            Node end = nodes.get(Integer.parseInt(ends[1]));
+            
+            int[] startNeighbors = start.getNeighbors();
+            int[] newStartNeighbors = Arrays.copyOf(startNeighbors, startNeighbors.length + 1);
+            newStartNeighbors[startNeighbors.length] = end.getId();
+            start.setNeighbors(newStartNeighbors);
+        }
     }
 
-    computeColorCountDegree(HashMap node, Vector color, Vector all_colors){
-        Iterator<HashMap> iterator = HashMap.iterator();
-        while (iterator.hasNext()) {
-            HashMap entry = iterator.next();
-            String key = entry.getKey();
-            String value = entry.getValue();
-            System.out.println("Key=" + key + ", Value=" + value);
-        }
-        for(int all_colors_i = 0; all_colors_i < all_colors.length(); all_colors_i++){
-            for(int color_j = 0; color_j < color.length(); color_j++){
-                if
-            }
-        }
-        
-    }
+    // You might want to add other methods to interact with or query the Partition
 }

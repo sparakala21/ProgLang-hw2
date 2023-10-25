@@ -1,0 +1,45 @@
+module concurrent;
+import java.io.*;
+import java.util.*;
+
+behavior Node {
+    int id;
+    String color;
+    int[] neighbors;
+
+    Node(int id, String color) {
+        this.id = id;
+        this.color = color;
+        this.neighbors = new int[0];
+    }
+    // Getter for id
+    int getId() {
+        return this.id;
+    }
+
+    // Setter for id
+    void setId(int id) {
+        this.id = id;
+    }
+
+    // Getter for color
+    String getColor() {
+        return this.color;
+    }
+
+    // Setter for color
+    void setColor(String color) {
+        this.color = color;
+    }
+
+    // Getter for neighbors
+    int[] getNeighbors() {
+        return this.neighbors;
+    }
+
+    // Setter for neighbors
+    void setNeighbors(int[] neighbors) {
+        this.neighbors = neighbors;
+    }
+
+}

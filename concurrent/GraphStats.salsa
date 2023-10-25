@@ -33,65 +33,24 @@ behavior GraphStats{
             {
                 String s = (String) LinesInFile.get(i);
                 actor = Integer.parseInt((String) s.split(" ")[1]);
-                standardOutput<-print("actor number: " );
-                standardOutput<-println(actor==i);
             }
             if(i%4==1)
             {
                 String Line = (String) LinesInFile.get(i);
-                NodeList = new String[Line.length()];
-                int curr = 0;
-                int start_index = 0;
-                for(int j=0; j<Line.length();j++)
-                {
-                    if(Line.charAt(j) == ',') 
-                    {
-                        NodeList[curr] = Line.substring(start_index, j);
-                        start_index= j+1;
-                        curr++;
-                    }
-                }
-                NodeList[curr] = Line.substring(start_index);
-
+                NodeList = Line.split(",");
             }
             if(i%4==2)
             {
                 String Line = (String) LinesInFile.get(i);
-                ColorList = new String[Line.length()];
-                int curr = 0;
-                int start_index = 0;
-                for(int j=0; j<Line.length();j++)
-                {
-                    if(Line.charAt(j) == ',') 
-                    {
-                        ColorList[curr] = Line.substring(start_index, j);
-                        start_index= j+1;
-                        curr++;
-                    }
-                }
-                ColorList[curr] = Line.substring(start_index);
+                ColorList = Line.split(",");
             }
 
             if(i%4==3)
             {
                 String Line = (String) LinesInFile.get(i);
-                EdgesList = new String[Line.length()];
-                int curr = 0;
-                int start_index = 0;
-                for(int j=0; j<Line.length();j++)
-                {
-                    if(Line.charAt(j) == ' ') 
-                    {
-                        EdgeList[curr] = Line.substring(start_index, j);
-                        start_index= j+1;
-                        curr++;
-                    }
-                }
-                EdgeList[curr] = Line.substring(start_index);
-
+                EdgeList = Line.split(" ");
                 new Partition(actor, NodeList, ColorList, EdgeList);
             }
-            standardOutput<-println(LinesInFile.get(i));
         }
 
     }
