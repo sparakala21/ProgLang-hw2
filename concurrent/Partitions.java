@@ -34,7 +34,7 @@ import salsa.resources.ActorService;
 import java.io.*;
 import java.util.*;
 
-public class GraphStats extends UniversalActor  {
+public class Partitions extends UniversalActor  {
 	public static void main(String args[]) {
 		UAN uan = null;
 		UAL ual = null;
@@ -69,7 +69,7 @@ public class GraphStats extends UniversalActor  {
 			ual = new UAL( ServiceFactory.getTheater().getLocation() + System.getProperty("identifier"));
 		}
 		RunTime.receivedMessage();
-		GraphStats instance = (GraphStats)new GraphStats(uan, ual,null).construct();
+		Partitions instance = (Partitions)new Partitions(uan, ual,null).construct();
 		gc.WeakReference instanceRef=new gc.WeakReference(uan,ual);
 		{
 			Object[] _arguments = { args };
@@ -82,18 +82,18 @@ public class GraphStats extends UniversalActor  {
 		RunTime.finishedProcessingMessage();
 	}
 
-	public static ActorReference getReferenceByName(UAN uan)	{ return new GraphStats(false, uan); }
-	public static ActorReference getReferenceByName(String uan)	{ return GraphStats.getReferenceByName(new UAN(uan)); }
-	public static ActorReference getReferenceByLocation(UAL ual)	{ return new GraphStats(false, ual); }
+	public static ActorReference getReferenceByName(UAN uan)	{ return new Partitions(false, uan); }
+	public static ActorReference getReferenceByName(String uan)	{ return Partitions.getReferenceByName(new UAN(uan)); }
+	public static ActorReference getReferenceByLocation(UAL ual)	{ return new Partitions(false, ual); }
 
-	public static ActorReference getReferenceByLocation(String ual)	{ return GraphStats.getReferenceByLocation(new UAL(ual)); }
-	public GraphStats(boolean o, UAN __uan)	{ super(false,__uan); }
-	public GraphStats(boolean o, UAL __ual)	{ super(false,__ual); }
-	public GraphStats(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
-	public GraphStats(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
-	public GraphStats(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
-	public GraphStats()		{  }
-	public GraphStats(UAN __uan, UAL __ual, Object obj) {
+	public static ActorReference getReferenceByLocation(String ual)	{ return Partitions.getReferenceByLocation(new UAL(ual)); }
+	public Partitions(boolean o, UAN __uan)	{ super(false,__uan); }
+	public Partitions(boolean o, UAL __ual)	{ super(false,__ual); }
+	public Partitions(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
+	public Partitions(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
+	public Partitions(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
+	public Partitions()		{  }
+	public Partitions(UAN __uan, UAL __ual, Object obj) {
 		//decide the type of sourceActor
 		//if obj is null, the actor must be the startup actor.
 		//if obj is an actorReference, this actor is created by a remote actor
@@ -116,7 +116,7 @@ public class GraphStats extends UniversalActor  {
 			      setSource(sourceActor.getUAN(), sourceActor.getUAL());
 			      activateGC();
 			    }
-			    createRemotely(__uan, __ual, "concurrent.GraphStats", sourceRef);
+			    createRemotely(__uan, __ual, "concurrent.Partitions", sourceRef);
 			  }
 
 			  // local creation
@@ -174,6 +174,12 @@ public class GraphStats extends UniversalActor  {
 		}
 	}
 
+	public UniversalActor construct (Integer a, List NodeList, List ColorList, List EdgeList) {
+		Object[] __arguments = { a, NodeList, ColorList, EdgeList };
+		this.send( new Message(this, this, "construct", __arguments, null, null) );
+		return this;
+	}
+
 	public UniversalActor construct() {
 		Object[] __arguments = { };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
@@ -181,22 +187,14 @@ public class GraphStats extends UniversalActor  {
 	}
 
 	public class State extends UniversalActor .State {
-		public GraphStats self;
+		public Partitions self;
 		public void updateSelf(ActorReference actorReference) {
-			((GraphStats)actorReference).setUAL(getUAL());
-			((GraphStats)actorReference).setUAN(getUAN());
-			self = new GraphStats(false,getUAL());
+			((Partitions)actorReference).setUAL(getUAL());
+			((Partitions)actorReference).setUAN(getUAN());
+			self = new Partitions(false,getUAL());
 			self.setUAN(getUAN());
 			self.setUAL(getUAL());
 			self.activateGC();
-		}
-
-		public void preAct(String[] arguments) {
-			getActorMemory().getInverseList().removeInverseReference("rmsp://me",1);
-			{
-				Object[] __args={arguments};
-				self.send( new Message(self,self, "act", __args, null,null,false) );
-			}
 		}
 
 		public State() {
@@ -205,7 +203,7 @@ public class GraphStats extends UniversalActor  {
 
 		public State(UAN __uan, UAL __ual) {
 			super(__uan, __ual);
-			addClassName( "concurrent.GraphStats$State" );
+			addClassName( "concurrent.Partitions$State" );
 			addMethodsForClasses();
 		}
 
@@ -266,179 +264,145 @@ public class GraphStats extends UniversalActor  {
 			}
 		}
 
-		String inputFile = "input.txt";
-		List Actors = new ArrayList();
-		String outputFileA;
-		String outputFileB;
-		public List combinePartionsAnswerA(List t, List r) {
-			List fin_fin = new ArrayList();
-			List ret = (List)t;
-			if (r.size()!=0) {{
-				for (int i = 0; i<ret.size(); ++i){
-					List fin = new ArrayList();
-					for (int j = 0; j<r.size(); j++){
-						List t1 = (List)ret.get(i);
-						List t2 = (List)r.get(j);
-						String c1 = (String)t1.get(0);
-						String c2 = (String)t2.get(0);
-						if (c1.equals(c2)) {{
-							String t1e1 = (String)t1.get(1);
-							String t1e2 = (String)t1.get(2);
-							String t2e1 = (String)t2.get(1);
-							String t2e2 = (String)t2.get(2);
-							int to_add_num = Integer.parseInt(t1e1);
-							int to_add_deg = Integer.parseInt(t1e2);
-							int to_add_num_1 = Integer.parseInt(t2e1);
-							int to_add_deg_1 = Integer.parseInt(t2e2);
-							int f_num = to_add_num+to_add_num_1;
-							int f_deg = to_add_deg+to_add_deg_1;
-							fin.add(c1);
-							fin.add(f_num);
-							fin.add(f_deg);
-						}
-}						fin_fin.add(fin);
-					}
-				}
-				return fin_fin;
-			}
-}			else {{
-				fin_fin = t;
-				return fin_fin;
-			}
-}		}
-		public List combinePartionsAnswerA_better(List t, List current) {
-			Map current_counts;
-			Map current_degrees;
-			List BigMoney = new ArrayList();
-			Map counts = new HashMap();
-			Map degrees = new HashMap();
-			if (current.size()==2) {{
-				current_counts = (Map)current.get(0);
-				current_degrees = (Map)current.get(1);
-				Set current_colors = (Set)current_counts.keySet();
-				Iterator current_itr = current_colors.iterator();
-				while (current_itr.hasNext()) {
-					String color = (String)current_itr.next();
-					String c_at_itr = (String)current_counts.get(color);
-					int count_at_itr = Integer.parseInt(c_at_itr);
-					String d_at_itr = (String)current_degrees.get(color);
-					int degree_at_itr = Integer.parseInt(d_at_itr);
-					counts.put(color, count_at_itr);
-					degrees.put(color, degree_at_itr);
-				}
-			}
-}			else {{
-				current_counts = new HashMap();
-				current_degrees = new HashMap();
-			}
-}			Map color_to_count = (Map)t.get(0);
-			Map color_to_degree = (Map)t.get(1);
-			Set colors = (Set)color_to_count.keySet();
-			Iterator itr = colors.iterator();
-			while (itr.hasNext()) {
-				String color = (String)itr.next();
-				int c_at_itr = (int)color_to_count.get(color);
-				int d_at_itr = (int)color_to_degree.get(color);
-				if (current_counts.containsKey(color)) {{
-					int c = (int)current_counts.get(color);
-					int d = (int)current_degrees.get(color);
-					counts.put(color, c+c_at_itr);
-					degrees.put(color, d+d_at_itr);
+		Integer ActorNum;
+		Map color_to_node = new HashMap();
+		Map edge_to_node = new HashMap();
+		Set internal_node = new HashSet();
+		Set All_colors = new HashSet();
+		Map influential = new HashMap();
+		void construct(Integer a, List NodeList, List ColorList, List EdgeList){
+			this.ActorNum = a;
+			for (int i = 0; i<NodeList.size(); i++){
+				String name = (String)NodeList.get(i);
+				int n = Integer.parseInt(name);
+				internal_node.add(n);
+				String color = (String)ColorList.get(i);
+				if (!color_to_node.containsKey(color)) {{
+					All_colors.add(color);
+					List l = new ArrayList();
+					l.add(n);
+					color_to_node.put(color, l);
 				}
 }				else {{
-					counts.put(color, c_at_itr);
-					degrees.put(color, d_at_itr);
+					List l = (List)color_to_node.get(color);
+					l.add(n);
+					color_to_node.put(color, l);
 				}
 }			}
-			BigMoney.add(counts);
-			BigMoney.add(degrees);
-			{
-				// standardOutput<-println("AAAAAA")
+			for (int i = 0; i<EdgeList.size(); i++){
+				String[] pair = (String[])EdgeList.get(i);
+				String s = pair[0];
+				String e = pair[1];
+				int start = Integer.parseInt(s);
+				int end = Integer.parseInt(e);
+				if (!edge_to_node.containsKey(start)) {{
+					List l = new ArrayList();
+					l.add(end);
+					edge_to_node.put(start, l);
+				}
+}				else {{
+					List l = (List)edge_to_node.get(start);
+					l.add(end);
+					edge_to_node.put(start, l);
+				}
+}				if (!edge_to_node.containsKey(end)) {{
+					List l = new ArrayList();
+					l.add(start);
+					edge_to_node.put(end, l);
+				}
+}				else {{
+					List l = (List)edge_to_node.get(end);
+					l.add(start);
+					edge_to_node.put(end, l);
+				}
+}			}
+			Iterator it = internal_node.iterator();
+						while (it.hasNext()) {
+				int deg = 0;
+				int n = (int)it.next();
+				if (edge_to_node.containsKey(n)) {{
+					List t = (List)edge_to_node.get(n);
+					deg += t.size();
+				}
+}				influential.put(n, deg);
+			}
+		}
+		public List computePartA() {
+			List ret = new ArrayList();
+			Iterator itr = All_colors.iterator();
+			while (itr.hasNext()) {
+				List info = new ArrayList();
+				int deg = 0;
+				String c = (String)itr.next();
+				List temp = (List)color_to_node.get(c);
+				int count = temp.size();
+				for (int k = 0; k<count; k++){
+					int node = (int)temp.get(k);
+					List t = (List)edge_to_node.get(node);
+					int num = t.size();
+					deg += num;
+				}
+				info.add(c);
+				info.add(count);
+				info.add(deg);
 				{
-					Object _arguments[] = { "AAAAAA" };
+					// standardOutput<-println(c+", "+count+", "+deg)
+					{
+						Object _arguments[] = { c+", "+count+", "+deg };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				ret.add(info);
+			}
+			{
+				// standardOutput<-println(ActorNum)
+				{
+					Object _arguments[] = { ActorNum };
 					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
 					__messages.add( message );
 				}
 			}
-			return BigMoney;
+			return ret;
 		}
-		public void act(String[] args) {
-			Vector LinesInFile = new Vector();
-			String line;
-			try {
-				BufferedReader in = new BufferedReader(new FileReader(inputFile));
-				while ((line=in.readLine())!=null) {
-					LinesInFile.add(line);
+		public List computePartA_better() {
+			List ret = new ArrayList();
+			Map color_to_count = new HashMap();
+			Map color_to_degree = new HashMap();
+			Iterator itr = All_colors.iterator();
+			while (itr.hasNext()) {
+				int deg = 0;
+				String c = (String)itr.next();
+				List temp = (List)color_to_node.get(c);
+				int count = temp.size();
+				for (int k = 0; k<count; k++){
+					int node = (int)temp.get(k);
+					List t = (List)edge_to_node.get(node);
+					int num = t.size();
+					deg += num;
 				}
-				in.close();
-			}
-			catch (IOException ioe) {
+				color_to_count.put(c, count);
+				color_to_degree.put(c, deg);
 				{
-					// standardError<-println("[error] can't open file")
+					// standardOutput<-println(c+", "+count+", "+deg)
 					{
-						Object _arguments[] = { "[error] can't open file" };
-						Message message = new Message( self, standardError, "println", _arguments, null, null );
+						Object _arguments[] = { c+", "+count+", "+deg };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
 			}
-
-			int a = 0;
-			List NodeList = new ArrayList();
-			List ColorList = new ArrayList();
-			List EdgeList = new ArrayList();
-			for (int i = 0; i<LinesInFile.size(); i++){
-				if (i%4==0) {{
-					String s = (String)LinesInFile.get(i);
-					int act = (int)Integer.parseInt((String)s.split(" ")[1]);
-					a = act;
-				}
-}				else {if (i%4==1) {{
-					String Line = (String)LinesInFile.get(i);
-					NodeList = Arrays.asList(Line.split(","));
-				}
-}				else {if (i%4==2) {{
-					String Line = (String)LinesInFile.get(i);
-					ColorList = Arrays.asList(Line.split(","));
-				}
-}				else {if (i%4==3) {{
-					String Line = (String)LinesInFile.get(i);
-					String[] temp = Line.split(" ");
-					EdgeList = Arrays.asList(temp);
-					List Edges = new ArrayList();
-					for (int j = 0; j<EdgeList.size(); ++j){
-						String p = (String)EdgeList.get(j);
-						String[] splitp = p.split(",");
-						Edges.add(splitp);
-					}
-					Partitions p = ((Partitions)new Partitions(this).construct(a, NodeList, ColorList, Edges));
-					Actors.add(p);
-				}
-}}}}			}
-			List answer = new ArrayList();
-			List tokens = new ArrayList();
-			for (int i = 0; i<Actors.size(); ++i){
-				Partitions aAtI = (Partitions)Actors.get(i);
-				Token t = new Token("t");
+			ret.add(color_to_count);
+			ret.add(color_to_degree);
+			{
+				// standardOutput<-println("success")
 				{
-					// token t = aAtI<-computePartA_better()
-					{
-						Object _arguments[] = {  };
-						Message message = new Message( self, aAtI, "computePartA_better", _arguments, null, t );
-						__messages.add( message );
-					}
-				}
-				tokens.add(t);
-				Token t1 = new Token("t1");
-				{
-					// token t1 = combinePartionsAnswerA_better(t, answer)
-					{
-						Object _arguments[] = { t, answer };
-						Message message = new Message( self, self, "combinePartionsAnswerA_better", _arguments, null, t1 );
-						__messages.add( message );
-					}
+					Object _arguments[] = { "success" };
+					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					__messages.add( message );
 				}
 			}
+			return ret;
 		}
 	}
 }
