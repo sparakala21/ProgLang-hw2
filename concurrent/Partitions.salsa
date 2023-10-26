@@ -4,14 +4,14 @@ import java.util.*;
 
 behavior Partitions{
   // vars
-  int ActorNum;
+  Integer ActorNum;
   Map color_to_node = new HashMap();
   Map edge_to_node = new HashMap();
   Set internal_node = new HashSet();
   Set All_colors = new HashSet();
   Map influential = new HashMap();
 
-  Partitions(int a, List NodeList, List ColorList, List EdgeList){
+  Partitions(Integer a, List NodeList, List ColorList, List EdgeList){
     this.ActorNum = a;
 
     for(int i = 0; i < NodeList.size(); i++) {
@@ -63,6 +63,16 @@ behavior Partitions{
         edge_to_node.put(end, l);
       }
     }
+    Iterator it = internal_node.iterator();
+    while(it.hasNext()){
+      int deg = 0;
+      int n = (int) it.next();
+      if(edge_to_node.containsKey(n)){
+        List t = (List) edge_to_node.get(n);
+        deg += t.size();
+      }
+      influential.put(n,deg);
+    }
 
   }
   
@@ -93,6 +103,41 @@ behavior Partitions{
       ret.add(info);
       
     }
+    standardOutput<-println(ActorNum);
+    return ret;
+  }
+
+  List computePartA_better()
+  {
+    List ret = new ArrayList();
+    Map color_to_count = new HashMap();
+    Map color_to_degree = new HashMap();
+    Iterator itr = All_colors.iterator();
+
+    while(itr.hasNext())
+    {
+      int deg = 0;
+      String c = (String) itr.next();
+
+      List temp = (List) color_to_node.get(c);
+
+      int count = temp.size();
+      for(int k = 0; k < count; k++){
+        
+        int node = (int) temp.get(k);
+
+        List t = (List) edge_to_node.get(node);
+        int num = t.size();
+        deg += num;
+      }
+      color_to_count.put(c, count);
+      color_to_degree.put(c, deg);
+      standardOutput<-println(c + ", " + count + ", " + deg);
+    }
+    
+    ret.add(color_to_count);
+    ret.add(color_to_degree);
+    standardOutput<-println("success");
     return ret;
   }
   //Get the degree of each internal node of Ap.
@@ -102,15 +147,7 @@ behavior Partitions{
   // 0 if node n does not exist in their local partition).
   // • Find the largest degree node(s) from among the internal and external nodes of actor Ap. If there are multiple
   // nodes of the same max degree, return all such nodes
-  CalcMostInfluential(){
-    Iterator it = internal_node.iterator();
-    while(it.hasNext()){
-      int deg = 0;
-      int n = (int) it.next();
-      if(edge_to_node.containsKey(n)){
-        deg += edge_to_node.get(n);
-      }
-      influential.put(n,deg);
-    }
-  }
+  // CalcMostInfluential(){
+    
+  // }
 }
