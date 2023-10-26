@@ -1,29 +1,82 @@
+module concurrent;
+import java.io.*;
+import java.util.*;
 
-behavior Partition(partitionId: Int, partitionNodes: Set[Node], partitionEdges: Set[Edge], colorMap: Map[Node, Color]) {
-  // Properties
-  val partitionActor: ActorRef = Ap.createActor(partitionId, partitionNodes, partitionEdges)
-  val partitionColorNodes: Map[Color, Set[Node]] = partitionNodes.groupBy(colorMap)
-  val partitionColorDegrees: Map[Color, Int] = partitionColorNodes.map {
-    case (color, nodes) => color -> nodes.map(node => node.degree).sum
-  }
+behavior Partitions{
+    // vars
+    int ActorNum;
+    List nodes = new ArrayList();
+    List colors = new ArrayList();
+    HashSet All_colors = new HashSet();
 
-  // Methods
-  def findMostInfluentialNode: Map[Color, Node] = {
-    val influentialNodes = partitionColorNodes.map {
-      case (color, nodes) =>
-        val connectedNodes = nodes.flatMap(node => partitionEdges.filter(edge => edge.isConnectedTo(node)).map(edge => edge.otherNode(node)))
-        val maxDegreeNode = (nodes ++ connectedNodes).maxBy(_.degree)
-        color -> maxDegreeNode
+    Partitions(int actor, List NodeList, List ColorList, List EdgeList){
+        this.ActorNum = actor;
+
+        for(int i = 0; i < NodeList.size(); i++) {
+            String name = (String) NodeList.get(i);
+            int n = Integer.parseInt(name);
+            String c = (String) ColorList.get(i);
+            Node node = new Node(n, c);
+            
+            nodes.add(node);
+            All_colors.add(c);
+        }
+
+        for(int j = 0; j < EdgeList.size() - 1; j = i + 2) {
+            String ei = (String) EdgeList.get(j);
+            String ei1 =(String) EdgeList.get(j+1);
+            standardError<-println(ei, ei1);
+            int start = Integer.parseInt(ei);
+            int end = Integer.parseInt(ei1);
+            if(!edge_to_node.containsKey(start))
+            {
+              List l = new ArrayList();
+              l.add(end);
+              edge_to_node.put(start,l);
+            }
+            else{
+              List l = (List) edge_to_node.get(start);
+              l.add(end);
+              edge_to_node.put(start, l);
+            }
+            if(!edge_to_node.containsKey(end))
+            {
+              List l = new ArrayList();
+              l.add(start);
+              edge_to_node.put(end,l);
+            }
+            else{
+              List l = (List) edge_to_node.get(end);
+              l.add(start);
+              edge_to_node.put(end, l);
+            }
+          }
     }
-    influentialNodes
-  }
-}
+    
+    List computePartA(){
+        List ret = new Vector();
+        Iterator itr = All_colors.iterator();
+        while(itr.hasNext()){
+            List info = new Vector();
+            int count = 0;
+            int deg = 0;
+            String c = itr.next();
+            for(int i = 0; i < nodes.size(); i++){
+                Node nodei = (Node) nodes.get(i);
+                String color = (String) nodei.color;
+                if(c.equals(color)){
+                    count++;
+                    List neighbors = nodei.neighbors;
+                    int n_count = neighbors.size();
+                    deg = deg + n_count;
+                }
+            }
+            info.add(c);
+            info.add(count);
+            info.add(deg);
+            standardOutput<-println(c + ", " + count + ", " + deg);
+            ret.add(info);
+        }
 
-object PartitionBehavior {
-  def apply(partitions: Seq[Partition]): PartitionBehavior = {
-    // Define your partition behavior here
-    // You can use the partitions to implement the required computations
-    // and return the desired behavior for handling the partitions
-    ???
-  }
+    }
 }

@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 behavior GraphStats{
     String inputFile = "input.txt";
-
+    List Actors = new ArrayList();
     String outputFileA;
     String outputFileB;
 
@@ -23,35 +23,68 @@ behavior GraphStats{
             standardError<-println("[error] can't open file");
 
         }
-        int actor;
-        String[] NodeList;
-        String[] ColorList;
-        String[] EdgeList;
+        int a = 0;
+        List NodeList = new ArrayList();
+        List ColorList = new ArrayList();
+        List EdgeList = new ArrayList();
         for (int i=0;i<LinesInFile.size();i++)
         {
             if(i%4==0)
             {
                 String s = (String) LinesInFile.get(i);
-                actor = Integer.parseInt((String) s.split(" ")[1]);
+                int act = (int) Integer.parseInt((String) s.split(" ")[1]);
+                a = act;
             }
-            if(i%4==1)
+            else if(i%4==1)
             {
                 String Line = (String) LinesInFile.get(i);
-                NodeList = Line.split(",");
+                NodeList = Arrays.asList(Line.split(","));
             }
-            if(i%4==2)
+            else if(i%4==2)
             {
                 String Line = (String) LinesInFile.get(i);
-                ColorList = Line.split(",");
+                ColorList = Arrays.asList(Line.split(","));
             }
 
-            if(i%4==3)
+            else if(i%4==3)
             {
                 String Line = (String) LinesInFile.get(i);
-                EdgeList = Line.split(" ");
-                new Partition(actor, NodeList, ColorList, EdgeList);
+                String[] temp = Line.split(" ");
+                EdgeList = Arrays.asList(temp);
+                List Edges = new ArrayList();
+                for(int j=0;j<EdgeList.size();++j)
+                {
+                    standardOutput<-println(EdgeList.get(j));
+                    String p = (String) EdgeList.get(j);
+                    String[] splitp = p.split(",");
+                    Edges.add(splitp);
+                }
+                Partitions p = new Partitions(a, NodeList, ColorList, Edges);
+                Actors.add(p);
+            } 
+        }
+        List answer = new ArrayList();
+        join{
+            for(int i=0;i<Actors.size();++i)
+            {
+                Partitions aAtI = (Partitions) Actors.get(i);
+                token = aAtI<-computePartA()@
+                combinePartionsAnswerA(l)@
             }
         }
-
     }
+    // sum(token) @
+	//       display(token);
+    // }
+
+    // int sum(Object[] results){
+	// int s = 0;
+	// for (int i=0; i<n; i++)
+	//     s += (Integer) results[i];
+    //     return s;
+    // }
+
+    // void display(int total){
+	// standardOutput<-println("The sum of first "+n+" squares is: " + total);
+    // }
 }

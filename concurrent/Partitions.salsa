@@ -3,30 +3,114 @@ import java.io.*;
 import java.util.*;
 
 behavior Partitions{
-    // vars
-    private int ActorName;
-    private HashMap<Integer, Node> nodes = new HashMap<>();
-    private Vector<String> colors = new Vector<>();
+  // vars
+  int ActorNum;
+  Map color_to_node = new HashMap();
+  Map edge_to_node = new HashMap();
+  Set internal_node = new HashSet();
+  Set All_colors = new HashSet();
+  Map influential = new HashMap();
 
-    Partition(int actor, String[] NodeList, String[] ColorList, String[] EdgeList){
-        this.ActorName = actor;
+  Partitions(int a, List NodeList, List ColorList, List EdgeList){
+    this.ActorNum = a;
 
-        for(int i = 0; i < NodeList.length; i++) {
-            Node node = new Node(Integer.parseInt(NodeList[i]), ColorList[i]);
-            nodes.put(node.getId(), node);
-        }
+    for(int i = 0; i < NodeList.size(); i++) {
+      String name = (String) NodeList.get(i);
+      int n = Integer.parseInt(name);
+      internal_node.add(n);
 
-        for(String edge : EdgeList) {
-            String[] ends = edge.split(",");
-            Node start = nodes.get(Integer.parseInt(ends[0]));
-            Node end = nodes.get(Integer.parseInt(ends[1]));
-            
-            int[] startNeighbors = start.getNeighbors();
-            int[] newStartNeighbors = Arrays.copyOf(startNeighbors, startNeighbors.length + 1);
-            newStartNeighbors[startNeighbors.length] = end.getId();
-            start.setNeighbors(newStartNeighbors);
-        }
+      String color = (String) ColorList.get(i);
+      if(!color_to_node.containsKey(color))
+      {
+        All_colors.add(color);
+        List l = new ArrayList();
+        l.add(n);
+        color_to_node.put(color, l);
+      }
+      else{
+        List l = (List) color_to_node.get(color);
+        l.add(n);
+        color_to_node.put(color, l);
+      }
+    }
+    for(int i=0;i<EdgeList.size();i++)
+    {
+      String[] pair =(String[]) EdgeList.get(i);
+      String s = pair[0];
+      String e = pair[1];
+      int start = Integer.parseInt(s);
+      int end = Integer.parseInt(e);
+      if(!edge_to_node.containsKey(start))
+      {
+        List l = new ArrayList();
+        l.add(end);
+        edge_to_node.put(start,l);
+      }
+      else{
+        List l = (List) edge_to_node.get(start);
+        l.add(end);
+        edge_to_node.put(start, l);
+      }
+      if(!edge_to_node.containsKey(end))
+      {
+        List l = new ArrayList();
+        l.add(start);
+        edge_to_node.put(end,l);
+      }
+      else{
+        List l = (List) edge_to_node.get(end);
+        l.add(start);
+        edge_to_node.put(end, l);
+      }
     }
 
-    // You might want to add other methods to interact with or query the Partition
+  }
+  
+  List computePartA(){
+    List ret = new ArrayList();
+    Iterator itr = All_colors.iterator();
+    while(itr.hasNext()){
+      List info = new ArrayList();
+      int deg = 0;
+      String c = (String) itr.next();
+
+      List temp = (List) color_to_node.get(c);
+
+      int count = temp.size();
+
+      for(int k = 0; k < count; k++){
+        
+        int node = (int) temp.get(k);
+
+        List t = (List) edge_to_node.get(node);
+        int num = t.size();
+        deg += num;
+      }
+      info.add(c);
+      info.add(count);
+      info.add(deg);
+      standardOutput<-println(c + ", " + count + ", " + deg);
+      ret.add(info);
+      
+    }
+    return ret;
+  }
+  //Get the degree of each internal node of Ap.
+  // • Find the list of external nodes connected to Ap. (Any node in the edge list that is not in the node list is an
+  // external node of Ap)
+  // • For each external node n, message all other actors requesting the degree of node n. (An actor should return
+  // 0 if node n does not exist in their local partition).
+  // • Find the largest degree node(s) from among the internal and external nodes of actor Ap. If there are multiple
+  // nodes of the same max degree, return all such nodes
+  CalcMostInfluential(){
+    Iterator it = internal_node.iterator();
+    while(it.hasNext()){
+      int deg = 0;
+      int n = (int) it.next();
+      if(edge_to_node.containsKey(n)){
+        deg += edge_to_node.get(n);
+      }
+      influential.put(n,deg);
+    }
+  }
 }
