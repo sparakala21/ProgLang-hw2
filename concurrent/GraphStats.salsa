@@ -7,7 +7,7 @@ behavior GraphStats{
     String outputFileA;
     String outputFileB;
 
-    
+
     List combinePartionsAnswerA_better(List t, List current)
     {
         Map current_counts;
@@ -15,9 +15,8 @@ behavior GraphStats{
         List BigMoney = new ArrayList();
         Map counts = new HashMap();
         Map degrees = new HashMap();
-                    current_counts = new HashMap();
-            current_degrees = new HashMap();
-        }
+        current_counts = new HashMap();
+        current_degrees = new HashMap();
 
         Map color_to_count = (Map) t.get(0);
         Map color_to_degree = (Map) t.get(1);
@@ -53,6 +52,55 @@ behavior GraphStats{
         standardOutput<-println("AAAAAA");
         return BigMoney;
 
+    }
+
+    void merge(Object[] results)
+    {
+        List BigMoney = new ArrayList();
+        Map counts = new HashMap();
+        Map degrees = new HashMap();
+
+        for(int i=0;i<results.length;++i)
+        {
+            List r = (List) results[i];
+            Map curr_counts = (Map) r.get(0);
+            Map curr_degrees = (Map) r.get(1);
+
+            Set current_colors = (Set) curr_counts.keySet();
+
+            Iterator itr = current_colors.iterator();
+            while(itr.hasNext())
+            {
+                String color = (String) itr.next();
+
+                int c_at_itr =(int) curr_counts.get(color);
+
+                int d_at_itr = (int) curr_degrees.get(color);
+
+                if(counts.containsKey(color))
+                {
+                    int c = (int) counts.get(color);
+                    int d = (int) degrees.get(color);
+
+                    counts.put(color, c+c_at_itr);
+                    degrees.put(color, d+d_at_itr);
+                }
+                else
+                {
+                    counts.put(color, c_at_itr);
+                    degrees.put(color, d_at_itr);
+                }
+                
+            }
+            standardOutput<- println(curr_counts);
+            standardOutput<- println(curr_degrees);
+            standardOutput<- println();
+
+
+        }
+        BigMoney.add(counts);
+        BigMoney.add(degrees);
+        standardOutput<- println(BigMoney);
     }
 
     void act(String[] args)
@@ -113,15 +161,19 @@ behavior GraphStats{
         }
         List answer = new ArrayList();
         List tokens = new ArrayList();
+        join{
         for(int i=0;i<Actors.size();++i)
         {
             Partitions aAtI = (Partitions) Actors.get(i);
-            token t = aAtI<-computePartA_better();
+            aAtI<-computePartA_better();
 
-            tokens.add(t);
             
-            token t1 = combinePartionsAnswerA_better(t,answer);
+            
+            //token t1 <- combinePartionsAnswerA_better(t,answer);
         }
+        }@merge(token);
+
+        
         
 
     }
