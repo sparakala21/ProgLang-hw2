@@ -166,9 +166,6 @@ behavior GraphStats{
         {
             Partitions aAtI = (Partitions) Actors.get(i);
             aAtI<-computePartA_better();
-
-            
-            
             //token t1 <- combinePartionsAnswerA_better(t,answer);
         }
         }@merge(token);
