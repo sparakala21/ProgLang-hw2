@@ -147,59 +147,84 @@ behavior Partitions{
   // 0 if node n does not exist in their local partition).
   // • Find the largest degree node(s) from among the internal and external nodes of actor Ap. If there are multiple
   // nodes of the same max degree, return all such nodes
-  List CalcMostInfluential(){
+  List CalcMostInfluential(Map e_nodes_to_degrees) {
     List ret = new ArrayList();
-    int max_degree = 0;
-    List max_degree_nodes = new ArrayList();
+    int maxDegree = 0;
+    Set mostInfluentialNodes = new HashSet();
 
-    Set nodes = (Set) influential.keySet();
+    // Iterate through internal nodes
+    Set internalNodes = (Set) influential.keySet();
+    Iterator itrInternal = internalNodes.iterator();
 
-    Iterator itr1 = nodes.iterator();
-
-    while(itr1.hasNext())
-    {
-      int node = (int) itr1.next();
-      int degree =(int) influential.get(node);
-      if(degree > max_degree){
-        max_degree = degree;
-        max_degree_nodes.clear();
-        max_degree_nodes.add(node);
-      }else if(degree == max_degree){
-        max_degree_nodes.add(node);
-      }
+    while (itrInternal.hasNext()) {
+        int node = (int) itrInternal.next();
+        int degree = (int) influential.get(node);
+        
+        // Check if the degree is greater or equal to the maxDegree
+        if (degree >= maxDegree) {
+            if (degree > maxDegree) {
+                maxDegree = degree;
+                mostInfluentialNodes.clear();
+            }
+            mostInfluentialNodes.add(node);
+        }
     }
-    ret.add(max_degree);
-    ret.add(max_degree_nodes);
+
+    // Iterate through external nodes and consider their degrees
+    Set externalNodes = e_nodes_to_degrees.keySet();
+    Iterator itrExternal = externalNodes.iterator();
+
+    while (itrExternal.hasNext()) {
+        int node = (int) itrExternal.next();
+        int degree = (int) e_nodes_to_degrees.get(node);
+
+        // Check if the degree is greater or equal to the maxDegree
+        if (degree >= maxDegree) {
+            if (degree > maxDegree) {
+                maxDegree = degree;
+                mostInfluentialNodes.clear();
+            }
+            mostInfluentialNodes.add(node);
+        }
+    }
+
+    ret.add(maxDegree);
+    ret.add(mostInfluentialNodes);
     return ret;
-    // Iterator itr = external_degrees.iterator();
-    // while(itr.hasNext()){
-    //   int degree = (int) itr.next();
-    //   if(degree > max_degree){
-    //     max_degree = degree;
-    //     max_degree_nodes.clear();
-    //     max_degree_nodes.add(key);
-    //   }else if(degree == max_degree){
-    //     max_degree_nodes.add(key);
-    //   }
-    // }
   }
+
   
   Set getExternal(){
     Set external_nodes = new HashSet();
-    Iterator itr = external_nodes.iterator();
-    while(itr.hasNext()){
-      List neighbors = (List) itr.next();
-      for(int i = 0; i < neighbors.size(); i++){
-        int node = (int) neighbors.get(i);
-        if(!internal_node.contains(node)){
-          external_nodes.add(node);
-        }
+    
+    Set all_nodes = (Set) edge_to_node.keySet();
+
+    Iterator itr = all_nodes.iterator();
+    while(itr.hasNext())
+    {
+      int node = (int) itr.next();
+      if(!internal_node.contains(node))
+      {
+        external_nodes.add(node);
       }
     }
+
+
+    standardOutput<-println(external_nodes);
     return external_nodes;
   }
-  getExternalInfluence(List){
 
+  int degree(int nodeName) {
+    int deg = 0;
+
+    if (edge_to_node.containsKey(nodeName)) {
+        List t = (List) edge_to_node.get(nodeName);
+        deg = t.size();
+    }
+
+    return deg;
   }
+
+
 }
 

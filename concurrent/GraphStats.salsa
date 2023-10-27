@@ -6,6 +6,7 @@ behavior GraphStats{
     List Actors = new ArrayList();
     String outputFileA;
     String outputFileB;
+    List external_nodes = new ArrayList();
 
     List combinePartionsAnswerA_better(List t, List current)
     {
@@ -52,6 +53,41 @@ behavior GraphStats{
         return BigMoney;
 
     }
+
+    Map getExternalInfluence(List externalNodes, List Actors, int a) {
+        Map externalDegrees = new HashMap();
+
+        for (int i = 0; i < externalNodes.size(); i++) {
+            int externalNode = (int) externalNodes.get(i);
+
+            token nodeDegree = Actors.get(a) <- degree(externalNode); 
+
+            externalDegrees.put(externalNode, nodeDegree);
+        }
+
+        return externalDegrees;
+    }
+
+    void mergeExternalNodes(Object[] results)
+    {
+        Set r = new HashSet();
+
+        for(int i=0;i<results.length;++i)
+        {
+            Set a = (Set) results[i];
+            Iterator itr = a.iterator();
+            while(itr.hasNext())
+            {
+                int e = (int) itr.next();
+                r.add(e);
+                standardOutput<-println(e);
+            }
+        }
+        external_nodes = new ArrayList(r);
+        standardOutput<-println(external_nodes);
+        
+    }
+
 
     void merge(Object[] results)
     {
@@ -158,30 +194,29 @@ behavior GraphStats{
 
             } 
         }
-        List answer = new ArrayList();
-        List tokens = new ArrayList();
+        Set externalNodes = new HashSet();
         join{
             for(int i=0;i<Actors.size();++i)
             {
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI<-computePartA_better();
-                //token t1 <- combinePartionsAnswerA_better(t,answer);
             }
         }@merge(token);
 
-        for(int i = 0; i < Actors.size(); i++){
-            token t1 = actors.get(i) <- CalcMostInfluential();
-            actors.get(i) <- getExternal()@
-            join{
-                for(int j = 0; j < Actors.size(); j++){
-                    if(i != j){
-                        Actors.get(j) <- getExternalInfluence(token);
-                    }
-                }
-            }@Actors.get(i) <- combinePartionsAnswerB(token):waitfor(t1) @getPartitons
-            @ printAnswerB(filename, (i == Actors.size()-1))
-        }
+        join{
+            for (int i = 0; i < Actors.size(); i++) 
+            {
+                Partitions aAtI = (Partitions) Actors.get(i);
+                aAtI <- getExternal();
+            }
+        }@mergeExternalNodes(token);
+        standardOutput<-println(external_nodes.size());
 
+
+
+
+
+        
     }
     
     void printAnswerB(String filename, boolean lastPartition) throws Exception{
