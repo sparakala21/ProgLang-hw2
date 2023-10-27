@@ -7,7 +7,6 @@ behavior GraphStats{
     String outputFileA;
     String outputFileB;
 
-
     List combinePartionsAnswerA_better(List t, List current)
     {
         Map current_counts;
@@ -162,31 +161,35 @@ behavior GraphStats{
         List answer = new ArrayList();
         List tokens = new ArrayList();
         join{
-        for(int i=0;i<Actors.size();++i)
-        {
-            Partitions aAtI = (Partitions) Actors.get(i);
-            aAtI<-computePartA_better();
-            //token t1 <- combinePartionsAnswerA_better(t,answer);
-        }
+            for(int i=0;i<Actors.size();++i)
+            {
+                Partitions aAtI = (Partitions) Actors.get(i);
+                aAtI<-computePartA_better();
+                //token t1 <- combinePartionsAnswerA_better(t,answer);
+            }
         }@merge(token);
 
-        
-        
+        for(int i = 0; i < Actors.size(); i++){
+            token t1 = actors.get(i) <- CalcMostInfluential();
+            actors.get(i) <- getExternal()@
+            join{
+                for(int j = 0; j < Actors.size(); j++){
+                    if(i != j){
+                        Actors.get(j) <- getExternalInfluence(token);
+                    }
+                }
+            }@Actors.get(i) <- combinePartionsAnswerB(token):waitfor(t1) @getPartitons
+            @ printAnswerB(filename, (i == Actors.size()-1))
+        }
 
     }
-    // sum(token) @
-	//       display(token);
-    // }
-
-    // int sum(Object[] results){
-	// int s = 0;
-	// for (int i=0; i<n; i++)
-	//     s += (Integer) results[i];
-    //     return s;
-    // }
-
-    // void display(int total){
-	// standardOutput<-println("The sum of first "+n+" squares is: " + total);
-    // }
+    
+    void printAnswerB(String filename, boolean lastPartition) throws Exception{
+        if(lastPartition){
+            //print
+        }else{
+            //exception
+        }
+    }
     
 }

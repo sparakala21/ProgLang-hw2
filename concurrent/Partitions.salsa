@@ -147,43 +147,18 @@ behavior Partitions{
   // 0 if node n does not exist in their local partition).
   // • Find the largest degree node(s) from among the internal and external nodes of actor Ap. If there are multiple
   // nodes of the same max degree, return all such nodes
-  void CalcMostInfluential(){
-    // 1. Get the degree of each internal node of Ap
-    // This has already been done during the initialization and stored in the 'influential' map
-    
-    // 2. Find the list of external nodes connected to Ap
-    Set external_nodes = new HashSet();
-    Iterator itr = edge_to_node.iterator();
-    while(itr.hasNext()){
-      List neighbors = (List) itr.next();
-      for(int i = 0; i < neighbors.size(); i++){
-        int node = (int) neighbors.get(i);
-        if(!internal_node.contains(node)){
-          external_nodes.add(node);
-        }
-      }
-    }
-  
-    // 3. For each external node, message all other actors requesting the degree of node
-    // This requires some form of inter-actor communication. Here, I'll just mock this step.
-    // Ideally, this should be replaced by the real communication logic.
-    Map external_degrees = new HashMap();
-    for(Object node : external_nodes){
-      int external_degree = mockMessageOtherActorsForDegree((int) node);
-      external_degrees.put(node, external_degree);
-    }
-  
-    // 4. Find the largest degree node(s) from among the internal and external nodes of actor Ap
+  List CalcMostInfluential(){
+    List ret = new ArrayList();
     int max_degree = 0;
     List max_degree_nodes = new ArrayList();
 
     Set nodes = (Set) influential.keySet();
 
-    Iterator itr = nodes.iterator();
+    Iterator itr1 = nodes.iterator();
 
-    while(itr.hasNext())
+    while(itr1.hasNext())
     {
-      int node = (int) itr.next();
+      int node = (int) itr1.next();
       int degree =(int) influential.get(node);
       if(degree > max_degree){
         max_degree = degree;
@@ -193,22 +168,38 @@ behavior Partitions{
         max_degree_nodes.add(node);
       }
     }
-
-    Iterator itr = external_degrees.iterator();
-    while(itr.hasNext()){
-      int degree = (int) itr.next();
-      if(degree > max_degree){
-        max_degree = degree;
-        max_degree_nodes.clear();
-        max_degree_nodes.add(key);
-      }else if(degree == max_degree){
-        max_degree_nodes.add(key);
-      }
-    }
-  
-    // 5. If there are multiple nodes of the same max degree, return all such nodes
-    standardOutput<-println("Nodes with max degree (" + max_degree + "): " + max_degree_nodes);
+    ret.add(max_degree);
+    ret.add(max_degree_nodes);
+    return ret;
+    // Iterator itr = external_degrees.iterator();
+    // while(itr.hasNext()){
+    //   int degree = (int) itr.next();
+    //   if(degree > max_degree){
+    //     max_degree = degree;
+    //     max_degree_nodes.clear();
+    //     max_degree_nodes.add(key);
+    //   }else if(degree == max_degree){
+    //     max_degree_nodes.add(key);
+    //   }
+    // }
   }
   
-  
+  Set getExternal(){
+    Set external_nodes = new HashSet();
+    Iterator itr = external_nodes.iterator();
+    while(itr.hasNext()){
+      List neighbors = (List) itr.next();
+      for(int i = 0; i < neighbors.size(); i++){
+        int node = (int) neighbors.get(i);
+        if(!internal_node.contains(node)){
+          external_nodes.add(node);
+        }
+      }
+    }
+    return external_nodes;
+  }
+  getExternalInfluence(List){
+
+  }
 }
+
