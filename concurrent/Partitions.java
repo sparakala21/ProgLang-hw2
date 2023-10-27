@@ -404,5 +404,41 @@ public class Partitions extends UniversalActor  {
 			}
 			return ret;
 		}
+		public List CalcMostInfluential() {
+			List ret = new ArrayList();
+			int max_degree = 0;
+			List max_degree_nodes = new ArrayList();
+			Set nodes = (Set)influential.keySet();
+			Iterator itr1 = nodes.iterator();
+			while (itr1.hasNext()) {
+				int node = (int)itr1.next();
+				int degree = (int)influential.get(node);
+				if (degree>max_degree) {{
+					max_degree = degree;
+					max_degree_nodes.clear();
+					max_degree_nodes.add(node);
+				}
+}				else {if (degree==max_degree) {{
+					max_degree_nodes.add(node);
+				}
+}}			}
+			ret.add(max_degree);
+			ret.add(max_degree_nodes);
+			return ret;
+		}
+		public Set getExternal() {
+			Set external_nodes = new HashSet();
+			Iterator itr = external_nodes.iterator();
+			while (itr.hasNext()) {
+				List neighbors = (List)itr.next();
+				for (int i = 0; i<neighbors.size(); i++){
+					int node = (int)neighbors.get(i);
+					if (!internal_node.contains(node)) {{
+						external_nodes.add(node);
+					}
+}				}
+			}
+			return external_nodes;
+		}
 	}
 }
