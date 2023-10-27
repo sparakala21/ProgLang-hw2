@@ -67,7 +67,7 @@ behavior GraphStats{
         return externalDegrees;
     }
 
-    void mergeExternalNodes(Object[] results)
+    List mergeExternalNodes(Object[] results)
     {
         Set r = new HashSet();
 
@@ -82,11 +82,46 @@ behavior GraphStats{
                 standardOutput<-println(e);
             }
         }
-        external_nodes = new ArrayList(r);
-        
+        return new ArrayList(r);
         
     }
 
+    void m(List l, List actors)
+    {
+        join{
+            for(int i=0;i<actors.size();++i)
+            {
+                
+                for(int j=0;j<l.size();++j)
+                {
+                    int node = (int) l.get(j);
+                    Partitions aAtI = (Partitions) actors.get(i);
+                    aAtI <- degree(node);
+                }
+            }
+        }@external_node_to_degree(token);
+    }
+
+    Map external_node_to_degree(Object[] results)
+    {   
+        Map node_to_degrees = new HashMap();
+        for(int i=0;i<results.length;i++)
+        {
+            List r = (List) results[i];
+            int degree = (int) r.get(0);
+            int node = (int) r.get(1);
+            if(degree==0)
+            {
+                continue;
+            }
+            else
+            {
+                node_to_degrees.put(node, degree);
+            }
+        }
+        standardOutput<-println(node_to_degrees);
+        return node_to_degrees;
+    }
 
     void merge(Object[] results)
     {
@@ -194,6 +229,7 @@ behavior GraphStats{
             } 
         }
         Set externalNodes = new HashSet();
+
         join{
             for(int i=0;i<Actors.size();++i)
             {
@@ -202,13 +238,16 @@ behavior GraphStats{
             }
         }@merge(token);
 
+        
+
         join{
             for (int i = 0; i < Actors.size(); i++) 
             {
+                
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI <- getExternal();
             }
-        }@mergeExternalNodes(token)@externalDegrees(token);
+        }@mergeExternalNodes(token)@m(token, Actors);
 
         //Access External nodes here I ma getting size zero
 
