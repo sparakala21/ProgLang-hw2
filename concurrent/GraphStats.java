@@ -270,6 +270,7 @@ public class GraphStats extends UniversalActor  {
 		List Actors = new ArrayList();
 		String outputFileA;
 		String outputFileB;
+		List external_nodes = new ArrayList();
 		public List combinePartionsAnswerA_better(List t, List current) {
 			Map current_counts;
 			Map current_degrees;
@@ -308,6 +309,53 @@ public class GraphStats extends UniversalActor  {
 				}
 			}
 			return BigMoney;
+		}
+		public Map getExternalInfluence(List externalNodes, List Actors, int a) {
+			Map externalDegrees = new HashMap();
+			for (int i = 0; i<externalNodes.size(); i++){
+				int externalNode = (int)externalNodes.get(i);
+				Token nodeDegree = new Token("nodeDegree");
+				{
+					// token nodeDegree = Actors.get(a)<-degree(externalNode)
+					{
+						Object _arguments[] = { externalNode };
+						Message message = new Message( self, Actors.get(a), "degree", _arguments, null, nodeDegree );
+						__messages.add( message );
+					}
+				}
+				externalDegrees.put(externalNode, nodeDegree);
+			}
+			return externalDegrees;
+		}
+		public void mergeExternalNodes(Object[] results) {
+			Set r = new HashSet();
+			for (int i = 0; i<results.length; ++i){
+				Set a = (Set)results[i];
+				Iterator itr = a.iterator();
+				while (itr.hasNext()) {
+					int e = (int)itr.next();
+					r.add(e);
+					{
+						// standardOutput<-println(e)
+						{
+							Object _arguments[] = { e };
+							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+			}
+			external_nodes = new ArrayList(r);
+		}
+		public void p() {
+			{
+				// standardOutput<-println(external_nodes)
+				{
+					Object _arguments[] = { external_nodes };
+					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
 		}
 		public void merge(Object[] results) {
 			List BigMoney = new ArrayList();
@@ -423,8 +471,7 @@ public class GraphStats extends UniversalActor  {
 					Actors.add(p);
 				}
 }}}}			}
-			List answer = new ArrayList();
-			List tokens = new ArrayList();
+			Set externalNodes = new HashSet();
 			{
 				Token token_2_0 = new Token();
 				// join block
@@ -448,6 +495,42 @@ public class GraphStats extends UniversalActor  {
 					__messages.add( message );
 				}
 			}
+			{
+				Token token_2_0 = new Token();
+				Token token_2_1 = new Token();
+				// join block
+				token_2_0.setJoinDirector();
+				for (int i = 0; i<Actors.size(); i++){
+					Partitions aAtI = (Partitions)Actors.get(i);
+					{
+						// aAtI<-getExternal()
+						{
+							Object _arguments[] = {  };
+							Message message = new Message( self, aAtI, "getExternal", _arguments, null, token_2_0 );
+							__messages.add( message );
+						}
+					}
+				}
+				addJoinToken(token_2_0);
+				// mergeExternalNodes(token)
+				{
+					Object _arguments[] = { token_2_0 };
+					Message message = new Message( self, self, "mergeExternalNodes", _arguments, token_2_0, token_2_1 );
+					__messages.add( message );
+				}
+				// p()
+				{
+					Object _arguments[] = {  };
+					Message message = new Message( self, self, "p", _arguments, token_2_1, null );
+					__messages.add( message );
+				}
+			}
 		}
+		public void printAnswerB(String filename, boolean lastPartition) throws Exception{
+			if (lastPartition) {{
+			}
+}			else {{
+			}
+}		}
 	}
 }

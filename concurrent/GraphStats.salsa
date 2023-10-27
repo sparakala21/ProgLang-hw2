@@ -49,7 +49,6 @@ behavior GraphStats{
         }
         BigMoney.add(counts);
         BigMoney.add(degrees);
-        standardOutput<-println("AAAAAA");
         return BigMoney;
 
     }
@@ -84,7 +83,7 @@ behavior GraphStats{
             }
         }
         external_nodes = new ArrayList(r);
-        standardOutput<-println(external_nodes);
+        
         
     }
 
@@ -209,12 +208,9 @@ behavior GraphStats{
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI <- getExternal();
             }
-        }@mergeExternalNodes(token);
-        standardOutput<-println(external_nodes.size());
+        }@mergeExternalNodes(token)@externalDegrees(token);
 
-
-
-
+        //Access External nodes here I ma getting size zero
 
         
     }

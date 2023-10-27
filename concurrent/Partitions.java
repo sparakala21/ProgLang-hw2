@@ -404,41 +404,67 @@ public class Partitions extends UniversalActor  {
 			}
 			return ret;
 		}
-		public List CalcMostInfluential() {
+		public List CalcMostInfluential(Map e_nodes_to_degrees) {
 			List ret = new ArrayList();
-			int max_degree = 0;
-			List max_degree_nodes = new ArrayList();
-			Set nodes = (Set)influential.keySet();
-			Iterator itr1 = nodes.iterator();
-			while (itr1.hasNext()) {
-				int node = (int)itr1.next();
+			int maxDegree = 0;
+			Set mostInfluentialNodes = new HashSet();
+			Set internalNodes = (Set)influential.keySet();
+			Iterator itrInternal = internalNodes.iterator();
+			while (itrInternal.hasNext()) {
+				int node = (int)itrInternal.next();
 				int degree = (int)influential.get(node);
-				if (degree>max_degree) {{
-					max_degree = degree;
-					max_degree_nodes.clear();
-					max_degree_nodes.add(node);
+				if (degree>=maxDegree) {{
+					if (degree>maxDegree) {{
+						maxDegree = degree;
+						mostInfluentialNodes.clear();
+					}
+}					mostInfluentialNodes.add(node);
 				}
-}				else {if (degree==max_degree) {{
-					max_degree_nodes.add(node);
+}			}
+			Set externalNodes = e_nodes_to_degrees.keySet();
+			Iterator itrExternal = externalNodes.iterator();
+			while (itrExternal.hasNext()) {
+				int node = (int)itrExternal.next();
+				int degree = (int)e_nodes_to_degrees.get(node);
+				if (degree>=maxDegree) {{
+					if (degree>maxDegree) {{
+						maxDegree = degree;
+						mostInfluentialNodes.clear();
+					}
+}					mostInfluentialNodes.add(node);
 				}
-}}			}
-			ret.add(max_degree);
-			ret.add(max_degree_nodes);
+}			}
+			ret.add(maxDegree);
+			ret.add(mostInfluentialNodes);
 			return ret;
 		}
 		public Set getExternal() {
 			Set external_nodes = new HashSet();
-			Iterator itr = external_nodes.iterator();
+			Set all_nodes = (Set)edge_to_node.keySet();
+			Iterator itr = all_nodes.iterator();
 			while (itr.hasNext()) {
-				List neighbors = (List)itr.next();
-				for (int i = 0; i<neighbors.size(); i++){
-					int node = (int)neighbors.get(i);
-					if (!internal_node.contains(node)) {{
-						external_nodes.add(node);
-					}
-}				}
+				int node = (int)itr.next();
+				if (!internal_node.contains(node)) {{
+					external_nodes.add(node);
+				}
+}			}
+			{
+				// standardOutput<-println(external_nodes)
+				{
+					Object _arguments[] = { external_nodes };
+					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					__messages.add( message );
+				}
 			}
 			return external_nodes;
+		}
+		public int degree(int nodeName) {
+			int deg = 0;
+			if (edge_to_node.containsKey(nodeName)) {{
+				List t = (List)edge_to_node.get(nodeName);
+				deg = t.size();
+			}
+}			return deg;
 		}
 	}
 }
