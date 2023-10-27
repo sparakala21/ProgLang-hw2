@@ -214,15 +214,17 @@ behavior Partitions{
     return external_nodes;
   }
 
-  int degree(int nodeName) {
+  List degree(int nodeName) {
     int deg = 0;
 
     if (edge_to_node.containsKey(nodeName)) {
         List t = (List) edge_to_node.get(nodeName);
         deg = t.size();
     }
-
-    return deg;
+    List l = new ArrayList();
+    l.add(deg);
+    l.add(nodeName);
+    return l;
   }
 
 
