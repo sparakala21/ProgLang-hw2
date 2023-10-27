@@ -270,68 +270,15 @@ public class GraphStats extends UniversalActor  {
 		List Actors = new ArrayList();
 		String outputFileA;
 		String outputFileB;
-		public List combinePartionsAnswerA(List t, List r) {
-			List fin_fin = new ArrayList();
-			List ret = (List)t;
-			if (r.size()!=0) {{
-				for (int i = 0; i<ret.size(); ++i){
-					List fin = new ArrayList();
-					for (int j = 0; j<r.size(); j++){
-						List t1 = (List)ret.get(i);
-						List t2 = (List)r.get(j);
-						String c1 = (String)t1.get(0);
-						String c2 = (String)t2.get(0);
-						if (c1.equals(c2)) {{
-							String t1e1 = (String)t1.get(1);
-							String t1e2 = (String)t1.get(2);
-							String t2e1 = (String)t2.get(1);
-							String t2e2 = (String)t2.get(2);
-							int to_add_num = Integer.parseInt(t1e1);
-							int to_add_deg = Integer.parseInt(t1e2);
-							int to_add_num_1 = Integer.parseInt(t2e1);
-							int to_add_deg_1 = Integer.parseInt(t2e2);
-							int f_num = to_add_num+to_add_num_1;
-							int f_deg = to_add_deg+to_add_deg_1;
-							fin.add(c1);
-							fin.add(f_num);
-							fin.add(f_deg);
-						}
-}						fin_fin.add(fin);
-					}
-				}
-				return fin_fin;
-			}
-}			else {{
-				fin_fin = t;
-				return fin_fin;
-			}
-}		}
 		public List combinePartionsAnswerA_better(List t, List current) {
 			Map current_counts;
 			Map current_degrees;
 			List BigMoney = new ArrayList();
 			Map counts = new HashMap();
 			Map degrees = new HashMap();
-			if (current.size()==2) {{
-				current_counts = (Map)current.get(0);
-				current_degrees = (Map)current.get(1);
-				Set current_colors = (Set)current_counts.keySet();
-				Iterator current_itr = current_colors.iterator();
-				while (current_itr.hasNext()) {
-					String color = (String)current_itr.next();
-					String c_at_itr = (String)current_counts.get(color);
-					int count_at_itr = Integer.parseInt(c_at_itr);
-					String d_at_itr = (String)current_degrees.get(color);
-					int degree_at_itr = Integer.parseInt(d_at_itr);
-					counts.put(color, count_at_itr);
-					degrees.put(color, degree_at_itr);
-				}
-			}
-}			else {{
-				current_counts = new HashMap();
-				current_degrees = new HashMap();
-			}
-}			Map color_to_count = (Map)t.get(0);
+			current_counts = new HashMap();
+			current_degrees = new HashMap();
+			Map color_to_count = (Map)t.get(0);
 			Map color_to_degree = (Map)t.get(1);
 			Set colors = (Set)color_to_count.keySet();
 			Iterator itr = colors.iterator();
@@ -361,6 +308,67 @@ public class GraphStats extends UniversalActor  {
 				}
 			}
 			return BigMoney;
+		}
+		public void merge(Object[] results) {
+			List BigMoney = new ArrayList();
+			Map counts = new HashMap();
+			Map degrees = new HashMap();
+			for (int i = 0; i<results.length; ++i){
+				List r = (List)results[i];
+				Map curr_counts = (Map)r.get(0);
+				Map curr_degrees = (Map)r.get(1);
+				Set current_colors = (Set)curr_counts.keySet();
+				Iterator itr = current_colors.iterator();
+				while (itr.hasNext()) {
+					String color = (String)itr.next();
+					int c_at_itr = (int)curr_counts.get(color);
+					int d_at_itr = (int)curr_degrees.get(color);
+					if (counts.containsKey(color)) {{
+						int c = (int)counts.get(color);
+						int d = (int)degrees.get(color);
+						counts.put(color, c+c_at_itr);
+						degrees.put(color, d+d_at_itr);
+					}
+}					else {{
+						counts.put(color, c_at_itr);
+						degrees.put(color, d_at_itr);
+					}
+}				}
+				{
+					// standardOutput<-println(curr_counts)
+					{
+						Object _arguments[] = { curr_counts };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				{
+					// standardOutput<-println(curr_degrees)
+					{
+						Object _arguments[] = { curr_degrees };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				{
+					// standardOutput<-println()
+					{
+						Object _arguments[] = {  };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+			BigMoney.add(counts);
+			BigMoney.add(degrees);
+			{
+				// standardOutput<-println(BigMoney)
+				{
+					Object _arguments[] = { BigMoney };
+					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
 		}
 		public void act(String[] args) {
 			Vector LinesInFile = new Vector();
@@ -417,26 +425,27 @@ public class GraphStats extends UniversalActor  {
 }}}}			}
 			List answer = new ArrayList();
 			List tokens = new ArrayList();
-			for (int i = 0; i<Actors.size(); ++i){
-				Partitions aAtI = (Partitions)Actors.get(i);
-				Token t = new Token("t");
-				{
-					// token t = aAtI<-computePartA_better()
+			{
+				Token token_2_0 = new Token();
+				// join block
+				token_2_0.setJoinDirector();
+				for (int i = 0; i<Actors.size(); ++i){
+					Partitions aAtI = (Partitions)Actors.get(i);
 					{
-						Object _arguments[] = {  };
-						Message message = new Message( self, aAtI, "computePartA_better", _arguments, null, t );
-						__messages.add( message );
+						// aAtI<-computePartA_better()
+						{
+							Object _arguments[] = {  };
+							Message message = new Message( self, aAtI, "computePartA_better", _arguments, null, token_2_0 );
+							__messages.add( message );
+						}
 					}
 				}
-				tokens.add(t);
-				Token t1 = new Token("t1");
+				addJoinToken(token_2_0);
+				// merge(token)
 				{
-					// token t1 = combinePartionsAnswerA_better(t, answer)
-					{
-						Object _arguments[] = { t, answer };
-						Message message = new Message( self, self, "combinePartionsAnswerA_better", _arguments, null, t1 );
-						__messages.add( message );
-					}
+					Object _arguments[] = { token_2_0 };
+					Message message = new Message( self, self, "merge", _arguments, token_2_0, null );
+					__messages.add( message );
 				}
 			}
 		}
