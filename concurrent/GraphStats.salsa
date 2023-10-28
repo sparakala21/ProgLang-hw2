@@ -2,11 +2,11 @@ module concurrent;
 import java.io.*;
 import java.util.*;
 behavior GraphStats{
-    String inputFile = "input.txt";
     List Actors = new ArrayList();
+    List external_nodes = new ArrayList();
     String outputFileA;
     String outputFileB;
-    List external_nodes = new ArrayList();
+    String input_filename;
 
     List combinePartionsAnswerA_better(List t, List current)
     {
@@ -67,7 +67,7 @@ behavior GraphStats{
         return externalDegrees;
     }
 
-    List mergeExternalNodes(Object[] results)
+    List mergeExternalNodes(Object[] results, String outputFileB)
     {
         Set r = new HashSet();
 
@@ -79,51 +79,55 @@ behavior GraphStats{
             {
                 int e = (int) itr.next();
                 r.add(e);
-                standardOutput<-println(e);
             }
         }
         return new ArrayList(r);
         
     }
 
-    void m(List l, List actors)
+    void m(List l, List actors, String outputFileB)
     {
         join{
             for(int i=0;i<actors.size();++i)
             {
-                
                 for(int j=0;j<l.size();++j)
-                {
+                {   
+                    
                     int node = (int) l.get(j);
                     Partitions aAtI = (Partitions) actors.get(i);
                     aAtI <- degree(node);
+                    
                 }
             }
-        }@external_node_to_degree(token);
+        }@external_node_to_degree(token, outputFileB)@currentContinuation;
     }
 
-    Map external_node_to_degree(Object[] results)
+    Map external_node_to_degree(Object[] results, String outputFileB)
     {   
         Map node_to_degrees = new HashMap();
+        int degree_in_map = 0;
         for(int i=0;i<results.length;i++)
         {
             List r = (List) results[i];
             int degree = (int) r.get(0);
             int node = (int) r.get(1);
-            if(degree==0)
+            if(node_to_degrees.containsKey(node))
             {
-                continue;
+                int current_degree = (int) node_to_degrees.get(node);
+                if(current_degree<=degree)
+                {
+                    node_to_degrees.put(node, degree);
+                }
             }
-            else
-            {
+            else{
                 node_to_degrees.put(node, degree);
+                degree_in_map = degree;
             }
         }
-        standardOutput<-println(node_to_degrees);
         return node_to_degrees;
     }
 
-    void merge(Object[] results)
+    void merge(Object[] results, String outputFileA)
     {
         List BigMoney = new ArrayList();
         Map counts = new HashMap();
@@ -161,9 +165,6 @@ behavior GraphStats{
                 }
                 
             }
-            standardOutput<- println(curr_counts);
-            standardOutput<- println(curr_degrees);
-            standardOutput<- println();
 
 
         }
@@ -173,11 +174,14 @@ behavior GraphStats{
     }
 
     void act(String[] args)
-    {
+    {   
+        String input_filename = (String) args[0];
+        String outputFileA = (String) args[1];
+        String outputFileB = (String) args[2];
         Vector LinesInFile = new Vector();
         String line;
         try {
-            BufferedReader in  = new BufferedReader(new FileReader(inputFile));
+            BufferedReader in  = new BufferedReader(new FileReader(input_filename));
             while((line = in.readLine())!=null)
             {
                 LinesInFile.add(line);
@@ -186,8 +190,15 @@ behavior GraphStats{
         } catch(IOException ioe)
         {
             standardError<-println("[error] can't open file");
-
         }
+        try {
+            // Open the file without appending, this will overwrite its content
+            FileWriter myWriter = new FileWriter(outputFileB);
+            myWriter.close();
+          } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+          }
         int a = 0;
         List NodeList = new ArrayList();
         List ColorList = new ArrayList();
@@ -236,7 +247,7 @@ behavior GraphStats{
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI<-computePartA_better();
             }
-        }@merge(token);
+        }@merge(token, outputFileA)@printAnswerA(token, outputFileA);
 
         
 
@@ -247,18 +258,57 @@ behavior GraphStats{
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI <- getExternal();
             }
-        }@mergeExternalNodes(token)@m(token, Actors);
-
-        //Access External nodes here I ma getting size zero
-
-        
+        }@mergeExternalNodes(token, outputFileB)@m(token, Actors, outputFileB)@combineEverything(token, Actors, outputFileB);       
     }
     
-    void printAnswerB(String filename, boolean lastPartition) throws Exception{
-        if(lastPartition){
-            //print
-        }else{
-            //exception
+    void combineEverything(Map external_node_to_degrees, List Actors, String outputFileB){
+        join{
+            for(int i=0;i<Actors.size();++i)
+            {
+                Partitions aAtI = (Partitions) Actors.get(i);
+                aAtI <- CalcMostInfluential(external_node_to_degrees, outputFileB, i);
+            }
+        }@printG(token , outputFileB);
+        
+    }
+
+
+    void printG(Object[] results ,String outputFileB){
+        Set final_set = new HashSet();
+        for(int i=0;i<results.length;++i)
+        {
+            Set nodes = (Set) results[i];
+            if(nodes==null)
+            {
+                continue;
+            }
+            final_set.addAll(nodes);
+        }
+        
+        try {
+            FileWriter myWriter = new FileWriter(outputFileB, true);
+            Iterator itr = final_set.iterator();
+            myWriter.write("G: ");
+            while(itr.hasNext()){
+                int i = (int) itr.next();
+                myWriter.write(i+",");
+            }
+            myWriter.close();
+        } catch(IOException e)
+        {
+            standardError<-println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    void printAnswerA(Object[] results ,String outputFileA){
+        for(int i=0;i<results.length;++i)
+        {
+            List r = (List) results[i];
+            int degree = (int) r.get(0);
+            Set nodes = (Set) r.get(1);
+            standardOutput<- println("degree: " + degree);
+            standardOutput<- println("nodes: " + nodes);
         }
     }
     

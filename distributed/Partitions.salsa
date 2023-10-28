@@ -3,80 +3,249 @@ import java.io.*;
 import java.util.*;
 
 behavior Partitions{
-    // vars
-    int ActorNum;
-    List nodes = new ArrayList();
-    List colors = new ArrayList();
-    HashSet All_colors = new HashSet();
+  // vars
+  Integer ActorNum;
+  Map color_to_node = new HashMap();
+  Map edge_to_node = new HashMap();
+  Set internal_node = new HashSet();
+  Set external_node = new HashSet();
+  Set All_colors = new HashSet();
+  Map influential = new HashMap();
 
-    Partitions(int actor, List NodeList, List ColorList, List EdgeList){
-        this.ActorNum = actor;
+  Partitions(Integer a, List NodeList, List ColorList, List EdgeList){
+    this.ActorNum = a;
 
-        for(int i = 0; i < NodeList.size(); i++) {
-            String name = (String) NodeList.get(i);
-            int n = Integer.parseInt(name);
-            String c = (String) ColorList.get(i);
-            Node node = new Node(n, c);
-            
-            nodes.add(node);
-            All_colors.add(c);
-        }
+    for(int i = 0; i < NodeList.size(); i++) {
+      String name = (String) NodeList.get(i);
+      int n = Integer.parseInt(name);
+      internal_node.add(n);
 
-        for(int j = 0; j < EdgeList.size() - 1; j = i + 2) {
-            String ei = (String) EdgeList.get(j);
-            String ei1 =(String) EdgeList.get(j+1);
-            standardError<-println(ei, ei1);
-            int start = Integer.parseInt(ei);
-            int end = Integer.parseInt(ei1);
-            if(!edge_to_node.containsKey(start))
-            {
-              List l = new ArrayList();
-              l.add(end);
-              edge_to_node.put(start,l);
-            }
-            else{
-              List l = (List) edge_to_node.get(start);
-              l.add(end);
-              edge_to_node.put(start, l);
-            }
-            if(!edge_to_node.containsKey(end))
-            {
-              List l = new ArrayList();
-              l.add(start);
-              edge_to_node.put(end,l);
-            }
-            else{
-              List l = (List) edge_to_node.get(end);
-              l.add(start);
-              edge_to_node.put(end, l);
-            }
-          }
+      String color = (String) ColorList.get(i);
+      if(!color_to_node.containsKey(color))
+      {
+        All_colors.add(color);
+        List l = new ArrayList();
+        l.add(n);
+        color_to_node.put(color, l);
+      }
+      else{
+        List l = (List) color_to_node.get(color);
+        l.add(n);
+        color_to_node.put(color, l);
+      }
+    }
+    for(int i=0;i<EdgeList.size();i++)
+    {
+      String[] pair =(String[]) EdgeList.get(i);
+      String s = pair[0];
+      String e = pair[1];
+      int start = Integer.parseInt(s);
+      int end = Integer.parseInt(e);
+      if(!internal_node.contains(start)){
+        external_node.add(start);
+      }
+      if(!internal_node.contains(end)){
+        external_node.add(end);
+      }
+      if(!edge_to_node.containsKey(start))
+      {
+        List l = new ArrayList();
+        l.add(end);
+        edge_to_node.put(start,l);
+      }
+      else{
+        List l = (List) edge_to_node.get(start);
+        l.add(end);
+        edge_to_node.put(start, l);
+      }
+      if(!edge_to_node.containsKey(end))
+      {
+        List l = new ArrayList();
+        l.add(start);
+        edge_to_node.put(end,l);
+      }
+      else{
+        List l = (List) edge_to_node.get(end);
+        l.add(start);
+        edge_to_node.put(end, l);
+      }
+    }
+    Iterator it = internal_node.iterator();
+    while(it.hasNext()){
+      int deg = 0;
+      int n = (int) it.next();
+      if(edge_to_node.containsKey(n)){
+        List t = (List) edge_to_node.get(n);
+        deg += t.size();
+      }
+      influential.put(n,deg);
+    }
+
+  }
+  
+  List computePartA(){
+    List ret = new ArrayList();
+    Iterator itr = All_colors.iterator();
+    while(itr.hasNext()){
+      List info = new ArrayList();
+      int deg = 0;
+      String c = (String) itr.next();
+
+      List temp = (List) color_to_node.get(c);
+
+      int count = temp.size();
+
+      for(int k = 0; k < count; k++){
+        
+        int node = (int) temp.get(k);
+
+        List t = (List) edge_to_node.get(node);
+        int num = t.size();
+        deg += num;
+      }
+      info.add(c);
+      info.add(count);
+      info.add(deg);
+      standardOutput<-println(c + ", " + count + ", " + deg);
+      ret.add(info);
+      
+    }
+    standardOutput<-println(ActorNum);
+    return ret;
+  }
+
+  List computePartA_better()
+  {
+    List ret = new ArrayList();
+    Map color_to_count = new HashMap();
+    Map color_to_degree = new HashMap();
+    Iterator itr = All_colors.iterator();
+
+    while(itr.hasNext())
+    {
+      int deg = 0;
+      String c = (String) itr.next();
+
+      List temp = (List) color_to_node.get(c);
+
+      int count = temp.size();
+      for(int k = 0; k < count; k++){
+        
+        int node = (int) temp.get(k);
+
+        List t = (List) edge_to_node.get(node);
+        int num = t.size();
+        deg += num;
+      }
+      color_to_count.put(c, count);
+      color_to_degree.put(c, deg);
+      standardOutput<-println(c + ", " + count + ", " + deg);
     }
     
-    List computePartA(){
-        List ret = new Vector();
-        Iterator itr = All_colors.iterator();
-        while(itr.hasNext()){
-            List info = new Vector();
-            int count = 0;
-            int deg = 0;
-            String c = itr.next();
-            for(int i = 0; i < nodes.size(); i++){
-                Node nodei = (Node) nodes.get(i);
-                String color = (String) nodei.color;
-                if(c.equals(color)){
-                    count++;
-                    List neighbors = nodei.neighbors;
-                    int n_count = neighbors.size();
-                    deg = deg + n_count;
-                }
-            }
-            info.add(c);
-            info.add(count);
-            info.add(deg);
-            standardOutput<-println(c + ", " + count + ", " + deg);
-            ret.add(info);
+    ret.add(color_to_count);
+    ret.add(color_to_degree);
+    standardOutput<-println("success");
+    return ret;
+  }
+  //Get the degree of each internal node of Ap.
+  // • Find the list of external nodes connected to Ap. (Any node in the edge list that is not in the node list is an
+  // external node of Ap)
+  // • For each external node n, message all other actors requesting the degree of node n. (An actor should return
+  // 0 if node n does not exist in their local partition).
+  // • Find the largest degree node(s) from among the internal and external nodes of actor Ap. If there are multiple
+  // nodes of the same max degree, return all such nodes
+  Set CalcMostInfluential(Map e_nodes_to_degrees, String filename, int i) {
+    List ret = new ArrayList();
+    int maxDegree = 0;
+    Set mostInfluentialNodes = new HashSet();
+    // Iterate through internal nodes
+    Set internalNodes = (Set) influential.keySet();
+    Iterator itrInternal = internalNodes.iterator();
+    while (itrInternal.hasNext()) {
+      int node = (int) itrInternal.next();
+      int degree = (int) influential.get(node);
+      
+      // Check if the degree is greater or equal to the maxDegree
+      if (degree >= maxDegree) {
+        if (degree > maxDegree) {
+          maxDegree = degree;
+          mostInfluentialNodes.clear();
         }
-
+        standardOutput<- println("Internal: " + node);
+        mostInfluentialNodes.add(node);
+      }
     }
+    Set allExternalNodes = e_nodes_to_degrees.keySet();
+    Iterator itrExternal = allExternalNodes.iterator();
+    while (itrExternal.hasNext()) {
+      int node = (int) itrExternal.next();
+      int degree = (int) e_nodes_to_degrees.get(node);
+      if(external_node.contains(node)){
+        // Check if the degree is greater or equal to the maxDegree
+        if (degree >= maxDegree) {
+          if (degree > maxDegree) {
+            maxDegree = degree;
+            mostInfluentialNodes.clear();
+          }
+          standardOutput<- println("External: " + node);
+          mostInfluentialNodes.add(node);
+        }
+      }
+    }
+    standardOutput<-println("Im here");
+    standardOutput<-println(mostInfluentialNodes);
+    
+    try {
+      FileWriter myWriter = new FileWriter(filename, true);
+      Iterator itr = mostInfluentialNodes.iterator();
+      myWriter.write("Partition " + i + ": ");
+      while(itr.hasNext()){
+        myWriter.write(itr.next()+",");
+      }
+      myWriter.write('\n');
+      myWriter.close();
+    } catch(IOException e)
+    {
+      standardError<-println("An error occurred.");
+      e.printStackTrace();
+    }
+    return mostInfluentialNodes;
+  }
+
+  
+  Set getExternal(){
+    Set external_nodes = new HashSet();
+    
+    Set all_nodes = (Set) edge_to_node.keySet();
+
+    Iterator itr = all_nodes.iterator();
+    while(itr.hasNext())
+    {
+      int node = (int) itr.next();
+      if(!internal_node.contains(node))
+      {
+        external_nodes.add(node);
+      }
+    }
+
+
+    standardOutput<-println(external_nodes);
+    return external_nodes;
+  }
+
+  List degree(int nodeName) {
+    int deg = 0;
+
+    if (edge_to_node.containsKey(nodeName)) {
+      List t = (List) edge_to_node.get(nodeName);
+      deg = t.size();
+    }
+    List l = new ArrayList();
+    l.add(deg);
+    l.add(nodeName);
+    return l;
+  }
+
+
 }
+

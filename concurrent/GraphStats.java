@@ -266,11 +266,11 @@ public class GraphStats extends UniversalActor  {
 			}
 		}
 
-		String inputFile = "input.txt";
 		List Actors = new ArrayList();
+		List external_nodes = new ArrayList();
 		String outputFileA;
 		String outputFileB;
-		List external_nodes = new ArrayList();
+		String input_filename;
 		public List combinePartionsAnswerA_better(List t, List current) {
 			Map current_counts;
 			Map current_degrees;
@@ -300,14 +300,6 @@ public class GraphStats extends UniversalActor  {
 }			}
 			BigMoney.add(counts);
 			BigMoney.add(degrees);
-			{
-				// standardOutput<-println("AAAAAA")
-				{
-					Object _arguments[] = { "AAAAAA" };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
-			}
 			return BigMoney;
 		}
 		public Map getExternalInfluence(List externalNodes, List Actors, int a) {
@@ -327,7 +319,7 @@ public class GraphStats extends UniversalActor  {
 			}
 			return externalDegrees;
 		}
-		public void mergeExternalNodes(Object[] results) {
+		public List mergeExternalNodes(Object[] results, String outputFileB) {
 			Set r = new HashSet();
 			for (int i = 0; i<results.length; ++i){
 				Set a = (Set)results[i];
@@ -335,29 +327,60 @@ public class GraphStats extends UniversalActor  {
 				while (itr.hasNext()) {
 					int e = (int)itr.next();
 					r.add(e);
-					{
-						// standardOutput<-println(e)
+				}
+			}
+			return new ArrayList(r);
+		}
+		public void m(List l, List actors, String outputFileB) {
+			{
+				Token token_2_0 = new Token();
+				// join block
+				token_2_0.setJoinDirector();
+				for (int i = 0; i<actors.size(); ++i){
+					for (int j = 0; j<l.size(); ++j){
+						int node = (int)l.get(j);
+						Partitions aAtI = (Partitions)actors.get(i);
 						{
-							Object _arguments[] = { e };
-							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-							__messages.add( message );
+							// aAtI<-degree(node)
+							{
+								Object _arguments[] = { node };
+								Message message = new Message( self, aAtI, "degree", _arguments, null, token_2_0 );
+								__messages.add( message );
+							}
 						}
 					}
 				}
-			}
-			external_nodes = new ArrayList(r);
-		}
-		public void p() {
-			{
-				// standardOutput<-println(external_nodes)
+				addJoinToken(token_2_0);
+				// external_node_to_degree(token, outputFileB)
 				{
-					Object _arguments[] = { external_nodes };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					Object _arguments[] = { token_2_0, outputFileB };
+					Message message = new Message( self, self, "external_node_to_degree", _arguments, token_2_0, currentMessage.getContinuationToken() );
 					__messages.add( message );
 				}
+				throw new CurrentContinuationException();
 			}
 		}
-		public void merge(Object[] results) {
+		public Map external_node_to_degree(Object[] results, String outputFileB) {
+			Map node_to_degrees = new HashMap();
+			int degree_in_map = 0;
+			for (int i = 0; i<results.length; i++){
+				List r = (List)results[i];
+				int degree = (int)r.get(0);
+				int node = (int)r.get(1);
+				if (node_to_degrees.containsKey(node)) {{
+					int current_degree = (int)node_to_degrees.get(node);
+					if (current_degree<=degree) {{
+						node_to_degrees.put(node, degree);
+					}
+}				}
+}				else {{
+					node_to_degrees.put(node, degree);
+					degree_in_map = degree;
+				}
+}			}
+			return node_to_degrees;
+		}
+		public void merge(Object[] results, String outputFileA) {
 			List BigMoney = new ArrayList();
 			Map counts = new HashMap();
 			Map degrees = new HashMap();
@@ -382,30 +405,6 @@ public class GraphStats extends UniversalActor  {
 						degrees.put(color, d_at_itr);
 					}
 }				}
-				{
-					// standardOutput<-println(curr_counts)
-					{
-						Object _arguments[] = { curr_counts };
-						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-				{
-					// standardOutput<-println(curr_degrees)
-					{
-						Object _arguments[] = { curr_degrees };
-						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-				{
-					// standardOutput<-println()
-					{
-						Object _arguments[] = {  };
-						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
 			}
 			BigMoney.add(counts);
 			BigMoney.add(degrees);
@@ -419,10 +418,13 @@ public class GraphStats extends UniversalActor  {
 			}
 		}
 		public void act(String[] args) {
+			String input_filename = (String)args[0];
+			String outputFileA = (String)args[1];
+			String outputFileB = (String)args[2];
 			Vector LinesInFile = new Vector();
 			String line;
 			try {
-				BufferedReader in = new BufferedReader(new FileReader(inputFile));
+				BufferedReader in = new BufferedReader(new FileReader(input_filename));
 				while ((line=in.readLine())!=null) {
 					LinesInFile.add(line);
 				}
@@ -437,6 +439,15 @@ public class GraphStats extends UniversalActor  {
 						__messages.add( message );
 					}
 				}
+			}
+
+			try {
+				FileWriter myWriter = new FileWriter(outputFileB);
+				myWriter.close();
+			}
+			catch (IOException e) {
+				System.out.println("An error occurred.");
+				e.printStackTrace();
 			}
 
 			int a = 0;
@@ -474,6 +485,7 @@ public class GraphStats extends UniversalActor  {
 			Set externalNodes = new HashSet();
 			{
 				Token token_2_0 = new Token();
+				Token token_2_1 = new Token();
 				// join block
 				token_2_0.setJoinDirector();
 				for (int i = 0; i<Actors.size(); ++i){
@@ -488,16 +500,23 @@ public class GraphStats extends UniversalActor  {
 					}
 				}
 				addJoinToken(token_2_0);
-				// merge(token)
+				// merge(token, outputFileA)
 				{
-					Object _arguments[] = { token_2_0 };
-					Message message = new Message( self, self, "merge", _arguments, token_2_0, null );
+					Object _arguments[] = { token_2_0, outputFileA };
+					Message message = new Message( self, self, "merge", _arguments, token_2_0, token_2_1 );
+					__messages.add( message );
+				}
+				// printAnswerA(token, outputFileA)
+				{
+					Object _arguments[] = { token_2_1, outputFileA };
+					Message message = new Message( self, self, "printAnswerA", _arguments, token_2_1, null );
 					__messages.add( message );
 				}
 			}
 			{
 				Token token_2_0 = new Token();
 				Token token_2_1 = new Token();
+				Token token_2_2 = new Token();
 				// join block
 				token_2_0.setJoinDirector();
 				for (int i = 0; i<Actors.size(); i++){
@@ -512,25 +531,104 @@ public class GraphStats extends UniversalActor  {
 					}
 				}
 				addJoinToken(token_2_0);
-				// mergeExternalNodes(token)
+				// mergeExternalNodes(token, outputFileB)
 				{
-					Object _arguments[] = { token_2_0 };
+					Object _arguments[] = { token_2_0, outputFileB };
 					Message message = new Message( self, self, "mergeExternalNodes", _arguments, token_2_0, token_2_1 );
 					__messages.add( message );
 				}
-				// p()
+				// m(token, Actors, outputFileB)
 				{
-					Object _arguments[] = {  };
-					Message message = new Message( self, self, "p", _arguments, token_2_1, null );
+					Object _arguments[] = { token_2_1, Actors, outputFileB };
+					Message message = new Message( self, self, "m", _arguments, token_2_1, token_2_2 );
+					__messages.add( message );
+				}
+				// combineEverything(token, Actors, outputFileB)
+				{
+					Object _arguments[] = { token_2_2, Actors, outputFileB };
+					Message message = new Message( self, self, "combineEverything", _arguments, token_2_2, null );
 					__messages.add( message );
 				}
 			}
 		}
-		public void printAnswerB(String filename, boolean lastPartition) throws Exception{
-			if (lastPartition) {{
+		public void combineEverything(Map external_node_to_degrees, List Actors, String outputFileB) {
+			{
+				Token token_2_0 = new Token();
+				// join block
+				token_2_0.setJoinDirector();
+				for (int i = 0; i<Actors.size(); ++i){
+					Partitions aAtI = (Partitions)Actors.get(i);
+					{
+						// aAtI<-CalcMostInfluential(external_node_to_degrees, outputFileB, i)
+						{
+							Object _arguments[] = { external_node_to_degrees, outputFileB, i };
+							Message message = new Message( self, aAtI, "CalcMostInfluential", _arguments, null, token_2_0 );
+							__messages.add( message );
+						}
+					}
+				}
+				addJoinToken(token_2_0);
+				// printG(token, outputFileB)
+				{
+					Object _arguments[] = { token_2_0, outputFileB };
+					Message message = new Message( self, self, "printG", _arguments, token_2_0, null );
+					__messages.add( message );
+				}
 			}
-}			else {{
+		}
+		public void printG(Object[] results, String outputFileB) {
+			Set final_set = new HashSet();
+			for (int i = 0; i<results.length; ++i){
+				Set nodes = (Set)results[i];
+				if (nodes==null) {{
+continue;				}
+}				final_set.addAll(nodes);
 			}
-}		}
+			try {
+				FileWriter myWriter = new FileWriter(outputFileB, true);
+				Iterator itr = final_set.iterator();
+				myWriter.write("G: ");
+				while (itr.hasNext()) {
+					int i = (int)itr.next();
+					myWriter.write(i+",");
+				}
+				myWriter.close();
+			}
+			catch (IOException e) {
+				{
+					// standardError<-println("An error occurred.")
+					{
+						Object _arguments[] = { "An error occurred." };
+						Message message = new Message( self, standardError, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				e.printStackTrace();
+			}
+
+		}
+		public void printAnswerA(Object[] results, String outputFileA) {
+			for (int i = 0; i<results.length; ++i){
+				List r = (List)results[i];
+				int degree = (int)r.get(0);
+				Set nodes = (Set)r.get(1);
+				{
+					// standardOutput<-println("degree: "+degree)
+					{
+						Object _arguments[] = { "degree: "+degree };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				{
+					// standardOutput<-println("nodes: "+nodes)
+					{
+						Object _arguments[] = { "nodes: "+nodes };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+		}
 	}
 }

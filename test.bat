@@ -7,6 +7,6 @@ rem Compile Java files
 javac -classpath salsa1.1.6.jar;. concurrent/*.java
 
 rem Run the Java program
-java -cp salsa1.1.6.jar;. concurrent.GraphStats
+java -cp salsa1.1.6.jar;. concurrent.GraphStats input.txt a_output.txt b_output.txt
 
 pause
