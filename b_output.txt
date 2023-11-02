@@ -1,4 +1,4 @@
-Partition 2: 0,5,8,9,
 Partition 0: 0,1,4,9,
+Partition 2: 0,5,8,9,
 Partition 1: 1,4,5,8,
 G: 0,1,4,5,8,9,

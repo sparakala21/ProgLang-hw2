@@ -102,6 +102,8 @@ behavior GraphStats{
         }@external_node_to_degree(token, outputFileB)@currentContinuation;
     }
 
+
+
     Map external_node_to_degree(Object[] results, String outputFileB)
     {   
         Map node_to_degrees = new HashMap();
@@ -127,7 +129,7 @@ behavior GraphStats{
         return node_to_degrees;
     }
 
-    void merge(Object[] results, String outputFileA)
+    List merge(Object[] results, String outputFileA)
     {
         List BigMoney = new ArrayList();
         Map counts = new HashMap();
@@ -171,6 +173,7 @@ behavior GraphStats{
         BigMoney.add(counts);
         BigMoney.add(degrees);
         standardOutput<- println(BigMoney);
+        return BigMoney;
     }
 
     void act(String[] args)
@@ -195,10 +198,18 @@ behavior GraphStats{
             // Open the file without appending, this will overwrite its content
             FileWriter myWriter = new FileWriter(outputFileB);
             myWriter.close();
-          } catch (IOException e) {
+            } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
-          }
+        }
+        try {
+            // Open the file without appending, this will overwrite its content
+            FileWriter myWriter = new FileWriter(outputFileA);
+            myWriter.close();
+            } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
         int a = 0;
         List NodeList = new ArrayList();
         List ColorList = new ArrayList();
@@ -247,7 +258,7 @@ behavior GraphStats{
                 Partitions aAtI = (Partitions) Actors.get(i);
                 aAtI<-computePartA_better();
             }
-        }@merge(token, outputFileA)@printAnswerA(token, outputFileA);
+        }@merge(token, outputFileA)@printAnswerA(token, outputFileA):waitfor(token);
 
         
 
@@ -301,15 +312,37 @@ behavior GraphStats{
         }
     }
 
-    void printAnswerA(Object[] results ,String outputFileA){
-        for(int i=0;i<results.length;++i)
-        {
-            List r = (List) results[i];
-            int degree = (int) r.get(0);
-            Set nodes = (Set) r.get(1);
-            standardOutput<- println("degree: " + degree);
-            standardOutput<- println("nodes: " + nodes);
+    void printAnswerA(List results ,String outputFileA){
+        if (results == null || results.size() != 2) {
+            standardError<-println("Invalid input list");
+            return;
         }
+        Map nodesMap = (Map) results.get(0);
+        Map degreesMap = (Map) results.get(1);
+
+        // Getting all the colors (keys) from both maps and adding them to a TreeSet to automatically sort them.
+        Set colors = new TreeSet();
+        Set temp = (Set) nodesMap.keySet();
+        colors.addAll(temp);
+        Set temp1 = (Set) degreesMap.keySet();
+        colors.addAll(temp1);
+
+        Iterator itr = colors.iterator();
+        try {
+            FileWriter myWriter = new FileWriter(outputFileA, true);
+            while (itr.hasNext()) {
+                String color = (String) itr.next();
+                int numOfNodes = (int) nodesMap.get(color);
+                int numOfDegrees = (int) degreesMap.get(color);
+                myWriter.write(color + ", " + numOfNodes + ", " + numOfDegrees + '\n');
+            }
+            myWriter.close();
+        } catch(IOException e)
+        {
+            standardError<-println("An error occurred.");
+            e.printStackTrace();
+        }
+
     }
     
 }

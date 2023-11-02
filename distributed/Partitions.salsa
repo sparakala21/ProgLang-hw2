@@ -106,11 +106,9 @@ behavior Partitions{
       info.add(c);
       info.add(count);
       info.add(deg);
-      standardOutput<-println(c + ", " + count + ", " + deg);
       ret.add(info);
       
     }
-    standardOutput<-println(ActorNum);
     return ret;
   }
 
@@ -139,12 +137,10 @@ behavior Partitions{
       }
       color_to_count.put(c, count);
       color_to_degree.put(c, deg);
-      standardOutput<-println(c + ", " + count + ", " + deg);
     }
     
     ret.add(color_to_count);
     ret.add(color_to_degree);
-    standardOutput<-println("success");
     return ret;
   }
   //Get the degree of each internal node of Ap.
@@ -171,7 +167,6 @@ behavior Partitions{
           maxDegree = degree;
           mostInfluentialNodes.clear();
         }
-        standardOutput<- println("Internal: " + node);
         mostInfluentialNodes.add(node);
       }
     }
@@ -187,14 +182,10 @@ behavior Partitions{
             maxDegree = degree;
             mostInfluentialNodes.clear();
           }
-          standardOutput<- println("External: " + node);
           mostInfluentialNodes.add(node);
         }
       }
     }
-    standardOutput<-println("Im here");
-    standardOutput<-println(mostInfluentialNodes);
-    
     try {
       FileWriter myWriter = new FileWriter(filename, true);
       Iterator itr = mostInfluentialNodes.iterator();
@@ -227,9 +218,6 @@ behavior Partitions{
         external_nodes.add(node);
       }
     }
-
-
-    standardOutput<-println(external_nodes);
     return external_nodes;
   }
 

@@ -352,23 +352,7 @@ public class Partitions extends UniversalActor  {
 				info.add(c);
 				info.add(count);
 				info.add(deg);
-				{
-					// standardOutput<-println(c+", "+count+", "+deg)
-					{
-						Object _arguments[] = { c+", "+count+", "+deg };
-						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
 				ret.add(info);
-			}
-			{
-				// standardOutput<-println(ActorNum)
-				{
-					Object _arguments[] = { ActorNum };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
 			}
 			return ret;
 		}
@@ -390,25 +374,9 @@ public class Partitions extends UniversalActor  {
 				}
 				color_to_count.put(c, count);
 				color_to_degree.put(c, deg);
-				{
-					// standardOutput<-println(c+", "+count+", "+deg)
-					{
-						Object _arguments[] = { c+", "+count+", "+deg };
-						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
 			}
 			ret.add(color_to_count);
 			ret.add(color_to_degree);
-			{
-				// standardOutput<-println("success")
-				{
-					Object _arguments[] = { "success" };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
-			}
 			return ret;
 		}
 		public Set CalcMostInfluential(Map e_nodes_to_degrees, String filename, int i) {
@@ -425,15 +393,7 @@ public class Partitions extends UniversalActor  {
 						maxDegree = degree;
 						mostInfluentialNodes.clear();
 					}
-}					{
-						// standardOutput<-println("Internal: "+node)
-						{
-							Object _arguments[] = { "Internal: "+node };
-							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-					mostInfluentialNodes.add(node);
+}					mostInfluentialNodes.add(node);
 				}
 }			}
 			Set allExternalNodes = e_nodes_to_degrees.keySet();
@@ -447,34 +407,10 @@ public class Partitions extends UniversalActor  {
 							maxDegree = degree;
 							mostInfluentialNodes.clear();
 						}
-}						{
-							// standardOutput<-println("External: "+node)
-							{
-								Object _arguments[] = { "External: "+node };
-								Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-								__messages.add( message );
-							}
-						}
-						mostInfluentialNodes.add(node);
+}						mostInfluentialNodes.add(node);
 					}
 }				}
 }			}
-			{
-				// standardOutput<-println("Im here")
-				{
-					Object _arguments[] = { "Im here" };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
-			}
-			{
-				// standardOutput<-println(mostInfluentialNodes)
-				{
-					Object _arguments[] = { mostInfluentialNodes };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
-			}
 			try {
 				FileWriter myWriter = new FileWriter(filename, true);
 				Iterator itr = mostInfluentialNodes.iterator();
@@ -509,14 +445,6 @@ public class Partitions extends UniversalActor  {
 					external_nodes.add(node);
 				}
 }			}
-			{
-				// standardOutput<-println(external_nodes)
-				{
-					Object _arguments[] = { external_nodes };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
-				}
-			}
 			return external_nodes;
 		}
 		public List degree(int nodeName) {

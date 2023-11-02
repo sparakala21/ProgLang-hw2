@@ -271,6 +271,7 @@ public class GraphStats extends UniversalActor  {
 		String outputFileA;
 		String outputFileB;
 		String input_filename;
+		String nameServer = "127.0.0.1";
 		public List combinePartionsAnswerA_better(List t, List current) {
 			Map current_counts;
 			Map current_degrees;
@@ -419,11 +420,32 @@ public class GraphStats extends UniversalActor  {
 			return BigMoney;
 		}
 		public void act(String[] args) {
+			Vector theaters = new Vector();
+			String theater;
 			String input_filename = (String)args[0];
 			String outputFileA = (String)args[1];
 			String outputFileB = (String)args[2];
+			String theatersFile = (String)args[4];
 			Vector LinesInFile = new Vector();
 			String line;
+			try {
+				BufferedReader in = new BufferedReader(new FileReader(theatersFile));
+				while ((theater=in.readLine())!=null) {
+					theaters.add(theater);
+				}
+				in.close();
+			}
+			catch (IOException ioe) {
+				{
+					// standardError<-println("[error] Can't open the file "+theatersFile+" for reading.")
+					{
+						Object _arguments[] = { "[error] Can't open the file "+theatersFile+" for reading." };
+						Message message = new Message( self, standardError, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+
 			try {
 				BufferedReader in = new BufferedReader(new FileReader(input_filename));
 				while ((line=in.readLine())!=null) {
@@ -488,7 +510,8 @@ public class GraphStats extends UniversalActor  {
 						String[] splitp = p.split(",");
 						Edges.add(splitp);
 					}
-					Partitions p = ((Partitions)new Partitions(this).construct(a, NodeList, ColorList, Edges));
+					String UANP = "uan://"+nameServer+"/s"+i;
+					Partitions p = ((Partitions)new Partitions(new UAN(UANP), new UAL("rmsp://"+theaters.get(i%theaters.size())),this).construct(a, NodeList, ColorList, Edges));
 					Actors.add(p);
 				}
 }}}}			}
